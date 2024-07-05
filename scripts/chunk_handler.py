@@ -1,3 +1,5 @@
+import numpy as np
+import glm
 from scripts.chunk import Chunk
 
 
@@ -9,11 +11,16 @@ class ChunkHandler:
         self.chunks = {}
         # Set chunk parameters
         self.chunk_size = 16
+        self.world_size = 3
 
-        for x in range(-1, 2):
-            for y in range(-1, 2):
-                for z in range(-1, 2):
+        # Create all chunks
+        dim = self.world_size//2
+        for x in range(-dim, dim + 1):
+            for y in range(-dim, dim + 1):
+                for z in range(-dim, dim + 1):
                     self.add_chunk(x, y, z)
+        
+        self.generate()
 
     def render(self) -> None:
         for chunk in self.chunks.values():
@@ -27,8 +34,21 @@ class ChunkHandler:
         self.chunks[chunk_key] = Chunk(self.scene, self, x, y, z, self.chunk_size)
         self.chunks[chunk_key].build_vao()
 
-    def get_neighbors(self, x: int, y: int, z: int):
-        ...
+    def get_neighbor_chunk_arrays(self, x: int, y: int, z: int):
+        """
+        Returns a list of the neighboring chunk's arrays of a given chunk position
+        """
+
+        neighbors = np.zeros(shape=(3, 3, 3, self.chunk_size, self.chunk_size, self.chunk_size))
+
+        for rel_x, rel_y, rel_z in zip((0, 0, 1, -1, 0, 0, 0, 0, 0), (0, 0, 0, 0, 1, -1, 0, 0), (0, 0, 0, 0, 0, 0, 1, -1)):
+            
+            chunk_key = f'{int(x + rel_x)},{int(y + rel_y)},{int(z + rel_z)}'
+            if chunk_key not in self.chunks: continue
+
+            neighbors[rel_x + 1][rel_y + 1][rel_z + 1] = self.chunks[chunk_key].voxel_array
+        
+        return neighbors
 
     def get_voxel_id(self, x: int, y: int, z: int) -> bool:
         """
@@ -64,3 +84,14 @@ class ChunkHandler:
 
         # Set the voxel
         self.chunks[chunk_key].set_voxel(*local_pos, id)
+    
+    def generate(self):
+        dim = (self.world_size//2) * self.chunk_size
+        for x in range(-dim, dim + 1):
+            for y in range(-dim, dim + 1):
+                for z in range(-dim, dim + 1):
+                    if not int(glm.simplex(glm.vec3(x, y, z) * 0.1) + 1): continue
+                    self.set_voxel(x, y, z, 3)
+        
+        for chunk in self.chunks.values():
+            chunk.build_vao()

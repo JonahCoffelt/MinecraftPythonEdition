@@ -12,16 +12,16 @@ def add_data(vertex_data, index, *verticies):
 
 
 @njit
-def is_empty(chunk_voxels, x, y, z):
+def is_empty(chunk_voxels, neighbors, x, y, z):
     dim = chunk_voxels.shape[0]
     
-    # Check if the voxel is outside of the chunk
-    if not (0 <= x < dim and 0 <= y < dim and 0 <= z < dim): return True
+    chunk_x, chunk_y, chunk_z = x // dim, y // dim, z // dim
+    local_x, local_y, local_z = x % dim, y % dim, z % dim
 
-    return not bool(chunk_voxels[x][y][z])
+    return not bool(neighbors[chunk_x + 1][chunk_y + 1][chunk_z + 1][local_x][local_y][local_z])
 
 @njit
-def get_mesh_buffer(chunk_voxels):
+def get_mesh_buffer(chunk_voxels, neighbors):
     dim = chunk_voxels.shape[0]
     vertex_data = np.zeros((dim ** 3 + 1) * 5 * 36, dtype='uint8')
     index = 5 * 36
@@ -33,42 +33,42 @@ def get_mesh_buffer(chunk_voxels):
                 id = chunk_voxels[x][y][z]
 
                 # Front
-                if is_empty(chunk_voxels, x, y, z + 1):
+                if is_empty(chunk_voxels, neighbors, x, y, z + 1):
                     face = 5
                     index = add_data(vertex_data, index, 
                                         (x    , y    , z + 1, id, face), (x + 1, y + 1, z + 1, id, face), (x    , y + 1, z + 1, id, face), 
                                         (x    , y    , z + 1, id, face), (x + 1, y    , z + 1, id, face), (x + 1, y + 1, z + 1, id, face))
 
                 # Back
-                if is_empty(chunk_voxels, x, y, z - 1):
+                if is_empty(chunk_voxels, neighbors, x, y, z - 1):
                     face = 4
                     index = add_data(vertex_data, index, 
                                         (x    , y    , z    , id, face), (x    , y + 1, z    , id, face), (x + 1, y + 1, z    , id, face), 
                                         (x    , y    , z    , id, face), (x + 1, y + 1, z    , id, face), (x + 1, y    , z    , id, face))
 
                 # Top
-                if is_empty(chunk_voxels, x, y + 1, z):
+                if is_empty(chunk_voxels, neighbors, x, y + 1, z):
                     face = 0
                     index = add_data(vertex_data, index, 
                                         (x    , y + 1, z    , id, face), (x    , y + 1, z + 1, id, face), (x + 1, y + 1, z + 1, id, face), 
                                         (x    , y + 1, z    , id, face), (x + 1, y + 1, z + 1, id, face), (x + 1, y + 1, z    , id, face))
 
                 # Bottom
-                if is_empty(chunk_voxels, x, y - 1, z):
+                if is_empty(chunk_voxels, neighbors, x, y - 1, z):
                     face = 1
                     index = add_data(vertex_data, index, 
                                         (x    , y    , z    , id, face), (x + 1, y    , z + 1, id, face), (x    , y    , z + 1, id, face), 
                                         (x    , y    , z    , id, face), (x + 1, y    , z    , id, face), (x + 1, y    , z + 1, id, face))
 
                 # Right
-                if is_empty(chunk_voxels, x + 1, y, z):
+                if is_empty(chunk_voxels, neighbors, x + 1, y, z):
                     face = 2
                     index = add_data(vertex_data, index,
                                         (x + 1, y    , z    , id, face), (x + 1, y + 1, z    , id, face), (x + 1, y + 1, z + 1, id, face),
                                         (x + 1, y    , z    , id, face), (x + 1, y + 1, z + 1, id, face), (x + 1, y    , z + 1, id, face))
 
                 # Left
-                if is_empty(chunk_voxels, x - 1, y, z):
+                if is_empty(chunk_voxels, neighbors, x - 1, y, z):
                     face = 3
                     index = add_data(vertex_data, index,
                                         (x    , y    , z    , id, face), (x    , y + 1, z + 1, id, face), (x    , y + 1, z    , id, face),
@@ -97,4 +97,6 @@ class ChunkMeshVBO:
 
         if self.vbo: self.vbo.release()
 
-        self.vbo = self.ctx.buffer(get_mesh_buffer(self.chunk.voxel_array))
+        neighbors = self.chunk.chunk_handler.get_neighbor_chunk_arrays(*self.chunk.position.xyz)
+
+        self.vbo = self.ctx.buffer(get_mesh_buffer(self.chunk.voxel_array, neighbors))
