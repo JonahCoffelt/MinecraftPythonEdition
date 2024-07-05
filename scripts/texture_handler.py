@@ -12,31 +12,28 @@ class TextureHandler:
         # The folder containing all textures for the project
         self.directory = directory
 
-        # Dictionary containing all texture's data. This is not the texture itself.
-        self.textures = {size: [] for size in (128, 256, 512, 1024, 2048)}
+        # Dictionary containing all textures
+        self.textures = []
 
-        # Dictionary containing all texture arrays
-        self.texture_arrays = {}
+        self.texture_array = None
+        self.size = 32
 
 
     def write_textures(self, program) -> None:
-        #for i, array in enumerate((8, 16, 32)):
-            #if not array in self.texture_arrays: continue
-        program[f'textureArrays[0].array'] = 3
-        self.texture_arrays[128].use(location=3)
+        program[f'textureArray'] = 3
+        if self.texture_array: self.texture_array.use(location=3)
 
     def generate_texture_arrays(self):
-        for size in self.textures:
-            data = []
-            for texture in self.textures[size]:
-                data.append(texture)
-            data = np.array(data)
-            self.texture_arrays[size] = self.ctx.texture_array((size, size, len(self.textures[size])), 3, data)
-            # Mipmaps
-            self.texture_arrays[size].filter = (mgl.NEAREST, mgl.NEAREST)
-            self.texture_arrays[size].build_mipmaps()
-            # AF
-            self.texture_arrays[size].anisotropy = 32.0
+        data = []
+        for texture in self.textures:
+            data.append(texture)
+        data = np.array(data)
+        self.texture_array = self.ctx.texture_array((self.size, self.size, len(self.textures)), 3, data)
+        # Mipmaps
+        self.texture_array.filter = (mgl.NEAREST, mgl.NEAREST)
+        self.texture_array.build_mipmaps()
+        # AF
+        self.texture_array.anisotropy = 32.0
 
     def load_texture(self, name: str, file: str) -> None:
         """
@@ -52,19 +49,13 @@ class TextureHandler:
         # Loads image using pygame
         texture = pg.image.load(path).convert()
 
-        original_size = texture.get_size()[0]
-        
-        distances = np.array([abs(bucket_size - original_size) for bucket_size in self.textures.keys()])
-        size = list(self.textures.keys())[np.argmin(distances)]
-
-        texture = pg.transform.scale(texture, (size, size))
-        texture = pg.transform.flip(texture, False, True)
+        texture = pg.transform.scale(texture, (self.size, self.size))
 
         texture = self.ctx.texture(size=texture.get_size(), components=3, data = pg.image.tostring(texture, 'RGB'))
 
         data = texture.read()
 
-        self.textures[size].append(data)
+        self.textures.append(data)
 
     def set_directory(self, directory: str=None) -> None:
         """

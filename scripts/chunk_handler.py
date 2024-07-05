@@ -10,7 +10,7 @@ class ChunkHandler:
         # Create an empty dictionary to hold the chunks. Keys will be the chunk's position
         self.chunks = {}
         # Set chunk parameters
-        self.chunk_size = 16
+        self.chunk_size = 32
         self.world_size = 3
 
         # Create all chunks
@@ -88,10 +88,11 @@ class ChunkHandler:
     def generate(self):
         dim = (self.world_size//2) * self.chunk_size
         for x in range(-dim, dim + 1):
-            for y in range(-dim, dim + 1):
-                for z in range(-dim, dim + 1):
-                    if not int(glm.simplex(glm.vec3(x, y, z) * 0.1) + 1): continue
-                    self.set_voxel(x, y, z, 3)
+            for z in range(-dim, dim + 1):
+                height = int((glm.simplex(glm.vec3(x, 1.5, z) * 0.05) + 1) * 10)
+                self.set_voxel(x, height, z, 1)
+                for y in range(-dim, height):
+                    self.set_voxel(x, y, z, 2)
         
         for chunk in self.chunks.values():
             chunk.build_vao()

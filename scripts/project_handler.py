@@ -126,8 +126,9 @@ class BlankProject(Project):
         # Set scene to be rendered and updated
         self.current_scene = self.scenes['Scene']
         # Load textures
-        self.texture_handler.load_texture('box', 'img.png')
-        self.texture_handler.load_texture('grass', 'grass (1).png')
+        self.texture_handler.load_texture('grass', 'grass.png')
+        self.texture_handler.load_texture('grass_side', 'grass_side.png')
+        self.texture_handler.load_texture('stone', 'stone.png')
         self.texture_handler.generate_texture_arrays()
         # Use the scene
         self.current_scene.use()
