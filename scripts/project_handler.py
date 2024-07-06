@@ -24,8 +24,6 @@ class ProjectHandler:
             case _:
                 # Load project save
                 raise ValueError('ProjectHandler.__init__: Project loading not supported')
-                #self.load_project(project_name, load_project)
-                #self.current_project = self.projects[project_name]
 
     def update(self) -> None:
         self.current_project.update()

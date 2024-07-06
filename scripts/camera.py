@@ -2,7 +2,6 @@ import glm
 import pygame as pg
 
 # Camera view constants
-FOV = 50  # Degrees
 NEAR = 0.1
 FAR = 250
 
@@ -19,6 +18,8 @@ class Camera:
         self.engine = engine
         # The initial aspect ratio of the screen
         self.aspect_ratio = self.engine.win_size[0] / self.engine.win_size[1]
+        self.fov = 90  # Degrees
+        self.target_fov = 90  # Degrees
         # Position
         self.position = glm.vec3(position)
         # k vector for vertical movement
@@ -66,6 +67,32 @@ class Camera:
         self.up = glm.normalize(glm.cross(self.right, self.forward))
 
     def move(self) -> None:
+        ...
+
+    def use(self):
+        # Updated aspect ratio of the screen
+        self.aspect_ratio = self.engine.win_size[0] / self.engine.win_size[1]
+        # View matrix
+        self.m_view = self.get_view_matrix()
+        # Projection matrix
+        self.m_proj = self.get_projection_matrix()
+
+    def get_view_matrix(self) -> glm.mat4x4:
+        return glm.lookAt(self.position, self.position + self.forward, self.up)
+
+    def get_projection_matrix(self) -> glm.mat4x4:
+        return glm.perspective(glm.radians(self.fov), self.aspect_ratio, NEAR, FAR)
+    
+
+class FreeCamera(Camera):
+    """
+    Camera attached to nothing, and thus is completely free to move
+    """
+    
+    def __init__(self, engine, position=(0, 3, 35), yaw=-90, pitch=0) -> None:
+        super().__init__(engine, position, yaw, pitch)
+    
+    def move(self) -> None:
         """
         Checks for button presses and updates vectors accordingly. 
         """
@@ -84,16 +111,31 @@ class Camera:
         if keys[pg.K_LSHIFT]:
             self.position -= self.UP * velocity
 
-    def use(self):
-        # Updated aspect ratio of the screen
-        self.aspect_ratio = self.engine.win_size[0] / self.engine.win_size[1]
-        # View matrix
-        self.m_view = self.get_view_matrix()
-        # Projection matrix
-        self.m_proj = self.get_projection_matrix()
 
-    def get_view_matrix(self) -> glm.mat4x4:
-        return glm.lookAt(self.position, self.position + self.forward, self.up)
+class FirstPersonCamera(Camera):
+    """
+    Camera that is attacted to an object with a position
+    """
+    
+    def __init__(self, engine, target, position=(0, 3, 35), yaw=-90, pitch=0) -> None:
+        super().__init__(engine, position, yaw, pitch)
+        self.target = target
+    
+    def move(self) -> None:
+        """
+        Moves the camera to the position of the target
+        """
+        
+        # Set the camera position
+        self.position = self.target.position + glm.vec3(0, 0.72, 0)  # Adjusted to the same height as minecraft
 
-    def get_projection_matrix(self) -> glm.mat4x4:
-        return glm.perspective(glm.radians(FOV), self.aspect_ratio, NEAR, FAR)
+        # Update the players look direction
+        self.target.pitch, self.target.yaw = self.pitch, self.yaw
+        self.target.right, self.target.forward = self.right, self.forward
+
+        # Adjust the FOV if sprinting
+        if self.target.sprint: self.target_fov = 105
+        else: self.target_fov = 90
+        if abs(self.target_fov - self.fov) > .1:
+            self.fov += (self.target_fov - self.fov) * 9 * self.engine.dt
+            self.m_proj = self.get_projection_matrix()

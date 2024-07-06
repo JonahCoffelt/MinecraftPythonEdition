@@ -2,7 +2,7 @@ import moderngl as mgl
 import glm
 
 # Predefined uniforms that do not change each frame
-single_frame_uniforms = ['m_proj']
+single_frame_uniforms = []
 
 
 class ShaderHandler:

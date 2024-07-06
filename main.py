@@ -30,7 +30,6 @@ class Engine:
         self.ctx = mgl.create_context()
         # Basic Gl setup
         self.ctx.enable(flags=mgl.DEPTH_TEST | mgl.CULL_FACE)
-        self.ctx.enable(flags=mgl.DEPTH_TEST)
         # Time variables
         self.clock = pg.time.Clock()
         self.time = 0
@@ -51,7 +50,7 @@ class Engine:
         self.events = pg.event.get()
         self.keys = pg.key.get_pressed()
         self.mouse_position = pg.mouse.get_pos()
-        self.mouse_keys = pg.mouse.get_pressed()
+        self.mouse_buttons = pg.mouse.get_pressed()
         # Loop through window events
         for event in self.events:
             if event.type == pg.QUIT:
@@ -81,13 +80,17 @@ class Engine:
         # Update Project
         self.project_handler.update()
 
+        # Input states
+        self.prev_keys = self.keys
+        self.prev_mouse_buttons = self.mouse_buttons
+
     def render(self) -> None:
         """
         Renders the current project
         """
 
         # Clear the screen
-        self.ctx.clear(color=(0.08, 0.16, 0.18))
+        self.ctx.clear(color=(0.3, 0.75, 0.9))
         # Render project
         self.project_handler.render()
         # Flip display buffer
@@ -98,6 +101,10 @@ class Engine:
         Starts an instance of the engine
         """
         
+        # Input states
+        self.prev_keys = pg.key.get_pressed()
+        self.prev_mouse_buttons = pg.mouse.get_pressed()
+
         # Run variable allows engine to be closed from outside
         self.run = True
         # Main loop

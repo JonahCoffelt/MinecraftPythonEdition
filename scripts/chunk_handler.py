@@ -1,5 +1,6 @@
 import numpy as np
 import glm
+import random
 from scripts.chunk import Chunk
 
 
@@ -9,9 +10,10 @@ class ChunkHandler:
         self.scene = scene
         # Create an empty dictionary to hold the chunks. Keys will be the chunk's position
         self.chunks = {}
+        self.update_chunks = set()
         # Set chunk parameters
         self.chunk_size = 32
-        self.world_size = 3
+        self.world_size = 4
 
         # Create all chunks
         dim = self.world_size//2
@@ -21,6 +23,11 @@ class ChunkHandler:
                     self.add_chunk(x, y, z)
         
         self.generate()
+
+    def update(self):
+        for chunk in self.update_chunks:
+            chunk.build_vao()
+        self.update_chunks = set()
 
     def render(self) -> None:
         for chunk in self.chunks.values():
@@ -55,6 +62,8 @@ class ChunkHandler:
         Returns the id of the voxel at the given global position
         """
         
+        x, y, z = round(x), round(y), round(z)
+
         # Get the key of the chunk based on the given global position
         chunk_pos = x // self.chunk_size, y // self.chunk_size, z // self.chunk_size
         chunk_key = f'{chunk_pos[0]},{chunk_pos[1]},{chunk_pos[2]}'
@@ -84,15 +93,33 @@ class ChunkHandler:
 
         # Set the voxel
         self.chunks[chunk_key].set_voxel(*local_pos, id)
+
+        # Add effected chucks to the update list
+        possible_updates = [chunk_key]
+        if local_pos[0] == 0: possible_updates.append(f'{chunk_pos[0]-1},{chunk_pos[1]},{chunk_pos[2]}')
+        if local_pos[1] == 0: possible_updates.append(f'{chunk_pos[0]},{chunk_pos[1]-1},{chunk_pos[2]}')
+        if local_pos[2] == 0: possible_updates.append(f'{chunk_pos[0]},{chunk_pos[1]},{chunk_pos[2]-1}')
+        if local_pos[0] == self.chunk_size - 1: possible_updates.append(f'{chunk_pos[0]+1},{chunk_pos[1]},{chunk_pos[2]}')
+        if local_pos[1] == self.chunk_size - 1: possible_updates.append(f'{chunk_pos[0]},{chunk_pos[1]+1},{chunk_pos[2]}')
+        if local_pos[2] == self.chunk_size - 1: possible_updates.append(f'{chunk_pos[0]},{chunk_pos[1]},{chunk_pos[2]+1}')
+        
+        for chunk_key in possible_updates:
+            if not chunk_key in self.chunks: continue
+            self.update_chunks.add(self.chunks[chunk_key])
+
     
     def generate(self):
+        seed = random.randrange(10000)
         dim = (self.world_size//2) * self.chunk_size
         for x in range(-dim, dim + 1):
             for z in range(-dim, dim + 1):
-                height = int((glm.simplex(glm.vec3(x, 1.5, z) * 0.05) + 1) * 10)
-                self.set_voxel(x, height, z, 1)
-                for y in range(-dim, height):
-                    self.set_voxel(x, y, z, 2)
+                height = int((glm.simplex(glm.vec3(x + seed, 1.5 + seed, z + seed) * 0.05) + 1) * 10)
+
+                for y in range(-dim, height + 1):
+                    if (glm.simplex(glm.vec3(x + seed, y + seed, z + seed) * 0.05) + 1 - y/200) > 1.4: continue
+
+                    if y == height: self.set_voxel(x, height, z, 1)
+                    else: self.set_voxel(x, y, z, 2)
         
         for chunk in self.chunks.values():
             chunk.build_vao()

@@ -16,7 +16,7 @@ class TextureHandler:
         self.textures = []
 
         self.texture_array = None
-        self.size = 32
+        self.size = 8
 
 
     def write_textures(self, program) -> None:
@@ -26,12 +26,13 @@ class TextureHandler:
     def generate_texture_arrays(self):
         data = []
         for texture in self.textures:
-            data.append(texture)
+            data.append(texture.read())
         data = np.array(data)
         self.texture_array = self.ctx.texture_array((self.size, self.size, len(self.textures)), 3, data)
         # Mipmaps
+        texture.build_mipmaps()
         self.texture_array.filter = (mgl.NEAREST, mgl.NEAREST)
-        self.texture_array.build_mipmaps()
+        #self.texture_array.build_mipmaps()
         # AF
         self.texture_array.anisotropy = 32.0
 
@@ -53,9 +54,7 @@ class TextureHandler:
 
         texture = self.ctx.texture(size=texture.get_size(), components=3, data = pg.image.tostring(texture, 'RGB'))
 
-        data = texture.read()
-
-        self.textures.append(data)
+        self.textures.append(texture)
 
     def set_directory(self, directory: str=None) -> None:
         """

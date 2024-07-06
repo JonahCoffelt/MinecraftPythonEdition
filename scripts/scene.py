@@ -1,5 +1,5 @@
-import pygame as pg
-from scripts.camera import Camera
+from scripts.player import Player
+from scripts.camera import *
 from scripts.chunk_handler import ChunkHandler
 
 
@@ -13,10 +13,6 @@ class Scene:
         self.engine = engine
         self.project = project
         self.ctx = self.engine.ctx
-        self.timer = 0
-
-        # Makes a free cam
-        self.camera = Camera(self.engine)
 
         # Gets handlers from parent project
         self.vao_handler = self.project.vao_handler
@@ -24,9 +20,13 @@ class Scene:
         # Creates a chunk handler
         self.chunk_handler = ChunkHandler(self)
 
+        # Creates a free camera and player
+        self.player = Player(self)
+        self.camera = FirstPersonCamera(self.engine, self.player)
+
     def use(self):
         """
-        Updates project handlers to use this scene
+        Selects this scene for rendering and updating
         """
 
         self.vao_handler.shader_handler.set_camera(self.camera)
@@ -41,6 +41,8 @@ class Scene:
         self.vao_handler.shader_handler.update_uniforms()
         self.project.texture_handler.write_textures(self.vao_handler.shader_handler.programs['voxel'])
         self.camera.update()
+        self.player.update()
+        self.chunk_handler.update()
 
     def render(self):
         """
