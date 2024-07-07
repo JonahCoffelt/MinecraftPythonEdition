@@ -16,6 +16,7 @@ class VAOHandler:
         self.vaos = {}
         self.vao_to_vbo_key = {}
 
+        self.add_vao('frame', 'frame', 'frame')
         self.add_vao('cube', 'voxel', 'cube')
 
     def add_vao(self, name: str='cube', program_key: str='voxel', vbo_key: str='cube'):

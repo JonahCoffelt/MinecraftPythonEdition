@@ -12,6 +12,7 @@ class ShaderHandler:
         self.programs = {}
         self.uniform_attribs = {}
 
+        self.programs['frame'] = self.load_program('frame')
         self.programs['voxel'] = self.load_program('voxel')
 
     def load_program(self, name: str='default') -> mgl.Program:

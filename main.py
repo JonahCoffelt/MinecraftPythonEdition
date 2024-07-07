@@ -61,6 +61,8 @@ class Engine:
                 self.win_size = (event.w, event.h)
                 self.ctx.viewport = (0, 0, event.w, event.h)
                 self.project_handler.current_project.current_scene.use()
+                self.project_handler.current_project.texture_handler.generate_frame_buffer()
+                self.project_handler.current_project.ui_handler.resize(self.win_size)
             if event.type == pg.KEYUP:
                 if event.key == pg.K_ESCAPE:
                     # Unlock mouse

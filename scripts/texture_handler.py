@@ -18,6 +18,9 @@ class TextureHandler:
         self.texture_array = None
         self.size = 8
 
+        self.framebuffer = None
+        self.generate_frame_buffer()
+
 
     def write_textures(self, program) -> None:
         program[f'textureArray'] = 3
@@ -55,6 +58,20 @@ class TextureHandler:
         texture = self.ctx.texture(size=texture.get_size(), components=3, data = pg.image.tostring(texture, 'RGB'))
 
         self.textures.append(texture)
+
+    def generate_frame_buffer(self):
+        """
+        Creates a texture for the frame to be rendered to before going to the screen
+        """
+        
+        if self.framebuffer: self.framebuffer.release()
+
+        size = self.engine.win_size
+        self.depth_texture = self.ctx.depth_texture(size)
+        self.frame_texture = self.ctx.texture(size, 4, dtype='f4')
+        self.frame_texture.filter = (mgl.NEAREST, mgl.NEAREST)
+
+        self.framebuffer = self.ctx.framebuffer([self.frame_texture], self.depth_texture)
 
     def set_directory(self, directory: str=None) -> None:
         """

@@ -32,6 +32,7 @@ class Scene:
         self.vao_handler.shader_handler.set_camera(self.camera)
         self.camera.use()
         self.vao_handler.shader_handler.write_all_uniforms()
+        self.project.ui_handler.use(self, self.vao_handler.vaos['frame'], self.engine.win_size)
 
     def update(self):
         """
@@ -43,12 +44,21 @@ class Scene:
         self.camera.update()
         self.player.update()
         self.chunk_handler.update()
+        self.project.ui_handler.update()
 
     def render(self):
         """
         Redners all instances
         """
+
+        self.project.texture_handler.framebuffer.clear(color=(0.3, 0.75, 0.9))
+        self.project.texture_handler.framebuffer.use()
         self.chunk_handler.render()
+
+        self.ctx.screen.use()
+        self.vao_handler.shader_handler.programs['frame']['frameTexture'] = 0
+        self.project.texture_handler.frame_texture.use(location=0)
+        self.vao_handler.vaos['frame'].render()
 
 
     def release(self):

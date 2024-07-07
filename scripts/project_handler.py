@@ -1,6 +1,7 @@
 from scripts.scene import Scene
 from scripts.vao_handler import VAOHandler
 from scripts.texture_handler import TextureHandler
+from scripts.ui_handler import UIHandler
 
 class ProjectHandler:
     """
@@ -86,6 +87,8 @@ class Project:
         self.vao_handler = VAOHandler(self)
         # Creates a texture handler. Also used for writting bindless textures
         self.texture_handler = TextureHandler(self.engine)
+        # Creates a UI handler
+        self.ui_handler = UIHandler(self.ctx)
 
     def update(self) -> None:
         """
@@ -124,9 +127,12 @@ class BlankProject(Project):
         # Set scene to be rendered and updated
         self.current_scene = self.scenes['Scene']
         # Load textures
-        self.texture_handler.load_texture('grass', 'grass.png')
-        self.texture_handler.load_texture('grass_side', 'grass_side.png')
+        self.texture_handler.load_texture('grass_block_top', 'grass_block_top.png')
+        self.texture_handler.load_texture('grass_block_side', 'grass_block_side.png')
+        self.texture_handler.load_texture('dirt', 'dirt.png')
         self.texture_handler.load_texture('stone', 'stone.png')
+        self.texture_handler.load_texture('oak_log', 'oak_log.png')
+        self.texture_handler.load_texture('oak_log_top', 'oak_log_top.png')
         self.texture_handler.generate_texture_arrays()
         # Use the scene
         self.current_scene.use()

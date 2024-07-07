@@ -30,9 +30,10 @@ const vec3 faceNormals[6] = vec3[6](
     vec3(0, 0, 1), vec3(0, 0, -1)
 );
 
-const int textures[12] = int[12](
-    0, 1, 1, 1, 1, 1,
-    2, 2, 2, 2, 2, 2
+const int textures[18] = int[18](
+    0, 2, 1, 1, 1, 1,
+    3, 3, 3, 3, 3, 3,
+    5, 5, 4, 4, 4, 4
 );
 
 void main() {

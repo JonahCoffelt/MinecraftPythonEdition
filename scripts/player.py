@@ -31,6 +31,9 @@ class Player:
         self.size = glm.vec3(.6, 1.8, .6) # Voxels
 
     def update(self):
+        # Get the voxel the player is looking at
+        self.target_voxel = self.raycast()
+
         self.apply_inputs()
         self.move()
     
@@ -102,8 +105,14 @@ class Player:
 
         # Breaking a block
         if mouse_buttons[0] and not prev_mouse_buttons[0]:
-            voxel = self.raycast()
-            if voxel: self.chunk_handler.set_voxel(*voxel, 0)
+            if self.target_voxel: self.chunk_handler.set_voxel(*self.target_voxel[:3], 0)
+        
+        # Place a block
+        if mouse_buttons[2] and not prev_mouse_buttons[2]:
+            if self.target_voxel: 
+                place_position = self.target_voxel[0] + self.target_voxel[3][0], self.target_voxel[1] + self.target_voxel[3][1], self.target_voxel[2] + self.target_voxel[3][2]
+                if  self.can_place(glm.vec3(*place_position)): self.chunk_handler.set_voxel(*place_position, 3)
+
 
         # Reset the velocity to accelerate towards
         self.target_velocity = glm.vec3(0, self.velocity.y, 0)
@@ -138,21 +147,39 @@ class Player:
         # Linearly interpolates velocity toward the target velocity
         self.velocity += (self.target_velocity - self.velocity) * self.acceleration * dt
 
-    def raycast(self, max_distance: int=6) -> tuple:
+    def raycast(self, max_distance: int=5) -> tuple:
         """
         Casts a ray from the player to a voxel. Returns either a tuple with the location of the voxel or False if no voxel is hit in the given max_distance.
         """
-        
+        # Resolution
+        res = 12
+
         # Vector of the direction of the camera
-        direction = glm.normalize(glm.vec3(cos(glm.radians(self.yaw)) * cos(glm.radians(self.pitch)), sin(glm.radians(self.pitch)), sin(glm.radians(self.yaw)) * cos(glm.radians(self.pitch)))) / 8
+        direction = glm.normalize(glm.vec3(cos(glm.radians(self.yaw)) * cos(glm.radians(self.pitch)), sin(glm.radians(self.pitch)), sin(glm.radians(self.yaw)) * cos(glm.radians(self.pitch)))) / res
         # Starting position of the ray (camera position)
-        position = self.position + glm.vec3(-0.5, 0.72, -0.5)
+        position = self.position + glm.vec3(-0.5, 0.72 - 0.5, -0.5)
+        # Face that the ray hits
+        face = None
 
         # Loop until a hit
-        for i in range(8 * max_distance):
-            position += direction  # Increment the position
+        for i in range(res * max_distance):
+            # Increment the position in each direction
+            position.x += direction.x
             if self.chunk_handler.get_voxel_id(position.x, position.y, position.z): 
-                return round(position.x), round(position.y), round(position.z) # Round to the nearest voxel
+                face = ((direction.x < 0) * 2 - 1, 0, 0)
+                break
+
+            position.y += direction.y
+            if self.chunk_handler.get_voxel_id(position.x, position.y, position.z): 
+                face = (0, (direction.y < 0) * 2 - 1, 0)
+                break
+
+            position.z += direction.z
+            if self.chunk_handler.get_voxel_id(position.x, position.y, position.z): 
+                face = (0, 0, (direction.z < 0) * 2 - 1)
+                break
+
+        if face: return round(position.x), round(position.y), round(position.z), face # Round to the nearest voxel
         
         # No hit
         return False
@@ -182,6 +209,30 @@ class Player:
             if self.chunk_handler.get_voxel_id(z_position_check.x, z_position_check.y, z_position_check.z): collide_z = True
         
         return collide_x, collide_y, collide_z
+
+    def can_place(self, place_position: glm.vec3):
+        """
+        Used to check if a block can be placed in a position
+        """
+
+        # We check each corner of the player for collision
+        hit_points = (glm.vec3(-self.size.x / 2, -self.size.y / 2, -self.size.z / 2), glm.vec3( self.size.x / 2, -self.size.y / 2, -self.size.z / 2),
+                      glm.vec3(-self.size.x / 2,  self.size.y / 2, -self.size.z / 2), glm.vec3(-self.size.x / 2, -self.size.y / 2,  self.size.z / 2),
+                      glm.vec3(-self.size.x / 2,  self.size.y / 2,  self.size.z / 2), glm.vec3( self.size.x / 2, -self.size.y / 2,  self.size.z / 2),
+                      glm.vec3( self.size.x / 2,  self.size.y / 2, -self.size.z / 2), glm.vec3( self.size.x / 2,  self.size.y / 2,  self.size.z / 2))
+
+        # Loop through each corner
+        for hit_point in hit_points:
+            # Gets the positions of the projected corner position in each axis
+            position_check = self.position + hit_point - glm.vec3(.5)
+            # Round to voxel
+            position_check.x = round(position_check.x)
+            position_check.y = round(position_check.y)
+            position_check.z = round(position_check.z)
+            # Checks for collisions
+            if position_check == place_position: return False
+        
+        return True
 
     def is_grounded(self) -> bool:
         """
