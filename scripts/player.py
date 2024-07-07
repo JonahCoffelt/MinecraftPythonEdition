@@ -50,45 +50,65 @@ class Player:
             self.target_velocity.xz *= .7
 
         # Gets projected player position based on current velocity
-        projected_position = self.position + self.velocity * dt
-        collide_x, collide_y, collide_z = self.collide(projected_position)
+        self.projected_position = self.position + self.velocity * dt
+        self.collide_x, self.collide_y, self.collide_z = self.collide(self.projected_position)
 
+        # I move each component individually in order to avoid fighting over a collision
+
+        self.move_y()
+        self.collide_x, self.collide_y, self.collide_z = self.collide(self.projected_position)
+
+        if abs(glm.cos(glm.radians(self.yaw))) >= abs(glm.sin(glm.radians(self.yaw))):
+            self.move_x()
+            self.collide_x, self.collide_y, self.collide_z = self.collide(self.projected_position)
+            self.move_z()
+        else:
+            self.move_z()
+            self.collide_x, self.collide_y, self.collide_z = self.collide(self.projected_position)
+            self.move_x()
+
+    def move_x(self):
         # Updates position and velocity based on collisions. Snaps to grid if there is a collision
-        if collide_x:
+        if self.collide_x:
             # Snap tp grid on x axis
             if self.velocity.x > 0:
-                self.position.x = round(projected_position.x + self.size.x / 2) - (1 + self.size.x) / 2  - .002 + .5
+                self.position.x = round(self.projected_position.x + self.size.x / 2) - (1 + self.size.x) / 2  - .001 + .5
             if self.velocity.x < 0:
-                self.position.x = round(projected_position.x - self.size.x / 2) + (1 + self.size.x) / 2  + .002 - .5
+                self.position.x = round(self.projected_position.x - self.size.x / 2) + (1 + self.size.x) / 2  + .001 - .5
             self.sprint = False
             self.velocity.x = 0
+
         else: 
             # No collision, so set x to projected x
-            self.position.x = projected_position.x
-        if collide_y:
+            self.position.x = self.projected_position.x
+    
+    def move_y(self):
+        if self.collide_y:
             # Snap tp grid on y axis
             if self.velocity.y > 0:
-                self.position.y = round(projected_position.y + self.size.y / 2) - (1 + self.size.y) / 2  - .001 + .5
+                self.position.y = round(self.projected_position.y + self.size.y / 2) - (1 + self.size.y) / 2  - .001 + .5
             if self.velocity.y < 0:
-                self.position.y = round(projected_position.y - self.size.y / 2) + (1 + self.size.y) / 2  + .001 - .5
+                self.position.y = round(self.projected_position.y - self.size.y / 2) + (1 + self.size.y) / 2  + .001 - .5
             if self.velocity.y < 3:
                 self.has_jump = True
             self.velocity.y = 0
         else: 
             # No collision, so set y to projected y
-            self.position.y = projected_position.y
-        if collide_z:
+            self.position.y = self.projected_position.y
+
+    def move_z(self):
+        if self.collide_z:
             # Snap tp grid on z axis
             if self.velocity.z > 0:
-                self.position.z = round(projected_position.z + self.size.z / 2) - (1 + self.size.z) / 2  - .001 + .5
+                self.position.z = round(self.projected_position.z + self.size.z / 2) - (1 + self.size.z) / 2  - .001 + .5
             if self.velocity.z < 0:
-                self.position.z = round(projected_position.z - self.size.z / 2) + (1 + self.size.z) / 2  + .001 - .5
+                self.position.z = round(self.projected_position.z - self.size.z / 2) + (1 + self.size.z) / 2  + .001 - .5
             self.sprint = False
             self.velocity.z = 0
         else: 
             # No collision, so set y to projected z
-            self.position.z = projected_position.z
-    
+            self.position.z = self.projected_position.z
+
     def apply_inputs(self) -> None:
         """
         Applies all needed player inputs
@@ -145,14 +165,17 @@ class Player:
                 self.has_jump = False
             
         # Linearly interpolates velocity toward the target velocity
-        self.velocity += (self.target_velocity - self.velocity) * self.acceleration * dt
+        if self.flying:
+            self.velocity += (self.target_velocity - self.velocity) * self.acceleration * dt
+        else:
+            self.velocity.xz += (self.target_velocity.xz - self.velocity.xz) * self.acceleration * dt
 
     def raycast(self, max_distance: int=5) -> tuple:
         """
         Casts a ray from the player to a voxel. Returns either a tuple with the location of the voxel or False if no voxel is hit in the given max_distance.
         """
         # Resolution
-        res = 12
+        res = 10
 
         # Vector of the direction of the camera
         direction = glm.normalize(glm.vec3(cos(glm.radians(self.yaw)) * cos(glm.radians(self.pitch)), sin(glm.radians(self.pitch)), sin(glm.radians(self.yaw)) * cos(glm.radians(self.pitch)))) / res
