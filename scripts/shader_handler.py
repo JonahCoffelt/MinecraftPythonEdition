@@ -60,7 +60,8 @@ class ShaderHandler:
             'm_view' : self.camera.m_view,
             'm_model' : glm.mat4(),
             'cameraPosition' : self.camera.position,
-            'winSize' : glm.vec2(*self.project.engine.win_size)
+            'winSize' : glm.vec2(*self.project.engine.win_size),
+            'has_ao' : glm.int32(int(self.project.current_scene.ao))
         }
 
     def write_all_uniforms(self) -> None:

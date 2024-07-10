@@ -4,7 +4,7 @@ layout (location = 0) out vec4 frameFragColor;
 
 
 in vec3 uv;
-in vec3 normal;
+in float face_shading;
 
 
 uniform sampler2DArray textureArray;
@@ -13,6 +13,6 @@ uniform sampler2DArray textureArray;
 
 void main() {
     vec3 color = texture(textureArray, uv).rgb;
-    color = color * (abs(dot(normalize(vec3(.5, 1, .25)), normal))/2 + .5);
+    color = color * face_shading;
     frameFragColor = vec4(color, 1.0);
 }
