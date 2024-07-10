@@ -24,8 +24,6 @@ class Scene:
         self.player = Player(self)
         self.camera = FirstPersonCamera(self.engine, self.player)
 
-        self.ao = False
-
     def use(self):
         """
         Selects this scene for rendering and updating
@@ -43,8 +41,6 @@ class Scene:
         
         keys = self.engine.keys
         prev_keys = self.engine.prev_keys
-
-        if keys[pg.K_p] and not prev_keys[pg.K_p]: self.ao = not self.ao
 
         self.vao_handler.shader_handler.update_uniforms()
         self.project.texture_handler.write_textures(self.vao_handler.shader_handler.programs['voxel'])

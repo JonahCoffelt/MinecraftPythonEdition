@@ -15,10 +15,9 @@ uniform mat4 m_proj;
 uniform mat4 m_view;
 uniform mat4 m_model;
 
-uniform int has_ao;
 
 const float ao_values[4] = float[4](
-    0.25, 0.4, 0.65, 1.0
+    0.45, 0.6, 0.75, 1.0
 );
 
 const vec2 uv_coords[4] = vec2[4](
@@ -45,12 +44,7 @@ const int textures[18] = int[18](
 void main() {
     int uv_index = gl_VertexID % 6 + (in_face & 1) * 6;
     uv = vec3(uv_coords[uv_indicies[uv_index]], textures[in_face + (in_id - 1) * 6]);
-    if (has_ao == 1){
-        face_shading = (abs(dot(normalize(vec3(.5, 1, .25)), faceNormals[in_face]))/2 + .5) * ao_values[in_ao];
-    }
-    else {
-        face_shading = (abs(dot(normalize(vec3(.5, 1, .25)), faceNormals[in_face]))/2 + .5);
-    }
+    face_shading = (abs(dot(normalize(vec3(.5, 1, .25)), faceNormals[in_face]))/2 + .5) * ao_values[in_ao];
     
     gl_Position = m_proj * m_view * m_model * vec4(in_position, 1.0);
 }

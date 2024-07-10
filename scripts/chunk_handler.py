@@ -13,7 +13,7 @@ class ChunkHandler:
         self.update_chunks = set()
         # Set chunk parameters
         self.chunk_size = 32
-        self.world_size = 4
+        self.world_size = 8
 
         # Create all chunks
         dim = self.world_size//2

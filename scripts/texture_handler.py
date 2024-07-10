@@ -69,7 +69,6 @@ class TextureHandler:
         size = self.engine.win_size
         self.depth_texture = self.ctx.depth_texture(size)
         self.frame_texture = self.ctx.texture(size, 4, dtype='f4')
-        self.frame_texture.filter = (mgl.NEAREST, mgl.NEAREST)
 
         self.framebuffer = self.ctx.framebuffer([self.frame_texture], self.depth_texture)
 
