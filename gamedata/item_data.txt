@@ -1,0 +1,4 @@
+item_id: int,   block_id: int,  name: str,      placeable: bool,    block_type: int,    max_stack: int,     max_durability: int,    breaking_multipliers: list [dirt, stone, wood]
+1;              1;              Grass;          True;               0;                  64;                 0;                      [1, 1, 1]
+2;              2;              Stone;          True;               1;                  64;                 0;                      [1, 1, 1]
+3;              3;              Oak_Wood;       True;               1;                  64;                 0;                      [1, 1, 1]

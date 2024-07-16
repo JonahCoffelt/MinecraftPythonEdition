@@ -1,3 +1,5 @@
-my_list = [0, 1, 2, 3, 4]
+str_list = '[1, 2, 3]'
 
-print(-1 // 16)
+converted_list = list(map(int, '[1, 1, 1]'[1:-1].split(', ')))
+
+print(converted_list)

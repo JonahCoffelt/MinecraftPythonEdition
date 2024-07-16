@@ -2,7 +2,6 @@ import sys
 import pygame as pg
 import moderngl as mgl
 from scripts.project_handler import ProjectHandler
-
 import cudart
 
 
@@ -45,7 +44,7 @@ class Engine:
         """
 
         # Update time
-        self.dt = self.clock.tick(120) / 1000
+        self.dt = self.clock.tick() / 1000
         self.time += self.dt
         pg.display.set_caption(str(round(self.clock.get_fps())))
         # Pygame events

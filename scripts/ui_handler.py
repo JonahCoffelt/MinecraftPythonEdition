@@ -1,5 +1,6 @@
 import pygame as pg
 import moderngl as mgl
+from scripts.slot_menus_handler import MenuHandler
 
 
 class UIHandler:
@@ -15,6 +16,9 @@ class UIHandler:
 
         # Variables for updating
         self.update_texture = True
+
+        # In-game menu handler
+        self.menu_handler = MenuHandler(self)
 
     def use(self, scene, frame_vao, win_size=(800, 800)):
         # Save refernece to parent scene and frame vao
@@ -42,6 +46,9 @@ class UIHandler:
 
         # Variables for updating
         self.update_texture = True
+
+        # Update menu handler
+        self.menu_handler.set_slot_size()
 
 
     def generate_ui_texture(self):
@@ -89,6 +96,11 @@ class UIHandler:
         self.surf.fill((0, 0, 0, 0))
 
         cross_len = 20
-        cross_width = 3
+        cross_width = 2
         pg.draw.rect(self.surf, (225, 225, 225, 155), (self.win_size[0]/2 - cross_len/2  , self.win_size[1]/2 - cross_width/2, cross_len, cross_width))
         pg.draw.rect(self.surf, (225, 225, 225, 155), (self.win_size[0]/2 - cross_width/2, self.win_size[1]/2 - cross_len/2  , cross_width, cross_len))
+
+        self.menu_handler.draw_slots(.5, .95, 9, 1)
+
+        self.menu_handler.draw_slots(.5, .5, 9, 3)
+        self.menu_handler.draw_slots(.5, .7, 9, 1)
