@@ -22,7 +22,7 @@ class Scene:
 
         # Creates a free camera and player
         self.player = Player(self)
-        self.camera = FirstPersonCamera(self.engine, self.player)
+        self.camera = FirstPersonCamera(self.engine, self, self.player)
 
     def use(self):
         """

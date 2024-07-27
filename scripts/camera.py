@@ -13,9 +13,10 @@ class Camera:
     """
     Camera object to get view and projection matricies. Movement built in
     """
-    def __init__(self, engine, position=(0, 3, 35), yaw=-90, pitch=0) -> None:
+    def __init__(self, engine, scene, position=(0, 3, 35), yaw=-90, pitch=0) -> None:
         # Stores the engine to acces viewport and inputs
         self.engine = engine
+        self.scene = scene
         # The initial aspect ratio of the screen
         self.aspect_ratio = self.engine.win_size[0] / self.engine.win_size[1]
         self.fov = 90  # Degrees
@@ -38,7 +39,7 @@ class Camera:
 
     def update(self) -> None:
         self.move()
-        self.rotate()
+        if self.scene.project.ui_handler.menu_state == 'hotbar': self.rotate()
         self.update_camera_vectors()
         self.m_view = self.get_view_matrix()
 
@@ -89,8 +90,8 @@ class FreeCamera(Camera):
     Camera attached to nothing, and thus is completely free to move
     """
     
-    def __init__(self, engine, position=(0, 3, 35), yaw=-90, pitch=0) -> None:
-        super().__init__(engine, position, yaw, pitch)
+    def __init__(self, engine, scene, position=(0, 3, 35), yaw=-90, pitch=0) -> None:
+        super().__init__(engine, scene, position, yaw, pitch)
     
     def move(self) -> None:
         """
@@ -117,8 +118,8 @@ class FirstPersonCamera(Camera):
     Camera that is attacted to an object with a position
     """
     
-    def __init__(self, engine, target, position=(0, 3, 35), yaw=-90, pitch=0) -> None:
-        super().__init__(engine, position, yaw, pitch)
+    def __init__(self, engine, scene, target, position=(0, 3, 35), yaw=-90, pitch=0) -> None:
+        super().__init__(engine, scene, position, yaw, pitch)
         self.target = target
     
     def move(self) -> None:

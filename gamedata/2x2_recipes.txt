@@ -1,0 +1,8 @@
+Name: str,      Result,     Quantity,   Recipe
+Planks;         4;          4;          3000
+Planks;         4;          4;          0300
+Planks;         4;          4;          0030
+Planks;         4;          4;          0003
+Sticks;         6;          4;          4040
+Sticks;         6;          4;          0404
+Crafting Table; 7;          1;          4444

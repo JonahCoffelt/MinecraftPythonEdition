@@ -1,0 +1,12 @@
+grass_block_top.png
+grass_block_side.png
+dirt.png
+stone.png
+oak_log.png
+oak_log_top.png
+oak_planks.png
+cobblestone.png
+stick.png
+crafting_table_front.png
+crafting_table_side.png
+crafting_table_top.png

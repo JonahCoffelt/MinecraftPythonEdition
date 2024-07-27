@@ -1,5 +1,6 @@
 import moderngl as mgl
 import glm
+import numpy as np
 
 # Predefined uniforms that do not change each frame
 single_frame_uniforms = []
@@ -87,6 +88,27 @@ class ShaderHandler:
             for program in self.programs:
                 if not uniform in self.uniform_attribs[program]: continue  # Does not write uniforms not in the shader
                 self.programs[program][uniform].write(self.uniform_values[uniform])
+
+    def get_block_textures(self):
+        # Load textures
+        with open('gamedata/texture_paths.txt', 'r') as file:
+            file_list = list(file)
+            for line in file_list:
+                self.project.texture_handler.load_texture(line.strip())
+        # Generate Array
+        self.project.texture_handler.generate_texture_arrays()
+        # Load Block Texture IDs
+        with open('gamedata/block_textures.txt', 'r') as file:
+            file_list = list(file)
+            texture_ids = []
+            for line in file_list[1:]:
+                line = line.strip().split(',')[1:]
+                for id in line:
+                    texture_ids.append(int(id.strip()))
+        
+        texture_ids = np.array(texture_ids, dtype='i4')
+
+        self.programs['voxel']['textures'].write(texture_ids)
 
     def release(self) -> None:
         """

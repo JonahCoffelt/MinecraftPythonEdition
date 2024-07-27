@@ -1,0 +1,7 @@
+Name,            T,  B,  L,  R,  F,  B
+Grass,           0,  2,  1,  1,  1,  1
+Stone,           3,  3,  3,  3,  3,  3
+Oak Log,         5,  5,  4,  4,  4,  4
+Oak Plank,       6,  6,  6,  6,  6,  6
+Cobble Stone,    7,  7,  7,  7,  7,  7
+Crafting Table, 11,  6, 10, 10,  9, 10

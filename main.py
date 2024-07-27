@@ -74,11 +74,7 @@ class Engine:
                     self.project_handler.current_project.set_scene(scenes[0])
                 if event.key == pg.K_2:
                     scenes = list(self.project_handler.current_project.scenes.keys())
-                    self.project_handler.current_project.set_scene(scenes[1])
-            if event.type == pg.MOUSEBUTTONUP:
-                # Lock mouse
-                pg.event.set_grab(True)
-                pg.mouse.set_visible(False)
+                    self.project_handler.current_project.set_scene(scenes[1])     
 
         # Update Project
         self.project_handler.update()

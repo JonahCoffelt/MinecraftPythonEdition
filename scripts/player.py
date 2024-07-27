@@ -131,7 +131,12 @@ class Player:
         if mouse_buttons[2] and not prev_mouse_buttons[2]:
             if self.target_voxel: 
                 place_position = self.target_voxel[0] + self.target_voxel[3][0], self.target_voxel[1] + self.target_voxel[3][1], self.target_voxel[2] + self.target_voxel[3][2]
-                if  self.can_place(glm.vec3(*place_position)): self.chunk_handler.set_voxel(*place_position, 3)
+                if self.can_place(glm.vec3(*place_position)): 
+                    selected_item = self.scene.project.ui_handler.inventory.item_slots[self.scene.project.ui_handler.hot_bar_selection][0]
+                    if selected_item: 
+                        selected_block_id = selected_item.template.block_id
+                        if selected_block_id:
+                            self.chunk_handler.set_voxel(*place_position, selected_block_id)
 
 
         # Reset the velocity to accelerate towards

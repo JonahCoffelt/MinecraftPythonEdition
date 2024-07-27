@@ -15,6 +15,7 @@ uniform mat4 m_proj;
 uniform mat4 m_view;
 uniform mat4 m_model;
 
+uniform int textures[36];
 
 const float ao_values[4] = float[4](
     0.45, 0.6, 0.75, 1.0
@@ -35,11 +36,11 @@ const vec3 faceNormals[6] = vec3[6](
     vec3(0, 0, 1), vec3(0, 0, -1)
 );
 
-const int textures[18] = int[18](
-    0, 2, 1, 1, 1, 1,
-    3, 3, 3, 3, 3, 3,
-    5, 5, 4, 4, 4, 4
-);
+//const int textures[18] = int[18](
+//    0, 2, 1, 1, 1, 1,
+//    3, 3, 3, 3, 3, 3,
+//    5, 5, 4, 4, 4, 4
+//);
 
 void main() {
     int uv_index = gl_VertexID % 6 + (in_face & 1) * 6;

@@ -1,4 +1,7 @@
 block_id: int,  name: str,      block_type: int,    break_time: float,  drops: list
 1;              Grass;          0;                  0.5;                [1]
-2;              Stone;          1;                  1.0;                [2]
+2;              Stone;          1;                  1.0;                [5]
 3;              Oak_Wood;       2;                  0.75;               [3]
+4;              Oak_Plank;      2;                  0.75;               [4]
+5;              Cobble_Stone;   1;                  1.0;                [5]
+6;              Crafting_Table; 2;                  0.75;               [7]

@@ -12,8 +12,10 @@ class TextureHandler:
         # The folder containing all textures for the project
         self.directory = directory
 
-        # Dictionary containing all textures
+        # List containing all textures
         self.textures = []
+
+        self.texture_surfaces = []
 
         self.texture_array = None
         self.size = 8
@@ -39,7 +41,7 @@ class TextureHandler:
         # AF
         self.texture_array.anisotropy = 32.0
 
-    def load_texture(self, name: str, file: str) -> None:
+    def load_texture(self, file: str) -> None:
         """
         Loads a texture in the project texture directory.
         If no directory was given on init, full path is expected in the file argument.
@@ -51,12 +53,14 @@ class TextureHandler:
         else: path = file
 
         # Loads image using pygame
-        texture = pg.image.load(path).convert()
-
+        texture = pg.image.load(path).convert_alpha()
         texture = pg.transform.scale(texture, (self.size, self.size))
 
-        texture = self.ctx.texture(size=texture.get_size(), components=3, data = pg.image.tostring(texture, 'RGB'))
+        # Add to the surfaces list
+        self.texture_surfaces.append(texture)
 
+        # Create and save an MGL texture
+        texture = self.ctx.texture(size=texture.get_size(), components=3, data = pg.image.tostring(texture, 'RGB'))
         self.textures.append(texture)
 
     def generate_frame_buffer(self):
