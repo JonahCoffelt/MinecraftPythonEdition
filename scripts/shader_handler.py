@@ -96,7 +96,7 @@ class ShaderHandler:
         with open('gamedata/texture_paths.txt', 'r') as file:
             file_list = list(file)
             for line in file_list:
-                self.project.texture_handler.load_texture(line.strip())
+                self.project.texture_handler.load_texture(line.strip() + '.png')
         # Generate Array
         self.project.texture_handler.generate_texture_arrays()
         # Load Block Texture IDs

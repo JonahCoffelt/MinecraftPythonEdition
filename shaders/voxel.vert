@@ -15,7 +15,7 @@ uniform mat4 m_proj;
 uniform mat4 m_view;
 uniform mat4 m_model;
 
-uniform int textures[36];
+uniform int textures[192];
 
 const float ao_values[4] = float[4](
     0.45, 0.6, 0.75, 1.0
