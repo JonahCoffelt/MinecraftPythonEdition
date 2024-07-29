@@ -1,0 +1,6 @@
+Name: str,      Result,     Quantity,   Recipe
+Planks;         4;          4;          3
+Sticks;         6;          4;          4040
+Sticks;         6;          4;          0404
+Crafting Table; 7;          1;          4444
+Furnace;        1;          1;          555505555

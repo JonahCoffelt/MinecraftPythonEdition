@@ -3,6 +3,9 @@ from scripts.camera import *
 from scripts.chunk_handler import ChunkHandler
 
 
+import moderngl as mgl
+
+
 class Scene:
     def __init__(self, engine, project) -> None:
         """
@@ -57,6 +60,7 @@ class Scene:
         self.project.texture_handler.framebuffer.clear(color=(0.3, 0.75, 0.9))
         self.project.texture_handler.framebuffer.use()
         self.chunk_handler.render()
+        self.player.outline_handler.render()
 
         self.ctx.screen.use()
         self.vao_handler.shader_handler.programs['frame']['frameTexture'] = 0

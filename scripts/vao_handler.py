@@ -18,6 +18,8 @@ class VAOHandler:
 
         self.add_vao('frame', 'frame', 'frame')
         self.add_vao('cube', 'voxel', 'cube')
+        self.add_vao('outline', 'outline', 'outline')
+        self.add_vao('outline', 'outline', 'outline')
 
     def add_vao(self, name: str='cube', program_key: str='voxel', vbo_key: str='cube'):
         """

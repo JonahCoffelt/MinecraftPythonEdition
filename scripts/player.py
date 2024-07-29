@@ -1,6 +1,8 @@
 import pygame as pg
 import glm
 from math import cos, sin
+from scripts.item import Item
+from scripts.outline_handler import OutlineHandler
 
 
 class Player:
@@ -8,6 +10,7 @@ class Player:
         # Save refernce to the parent scene and the chunk handler
         self.scene = scene
         self.chunk_handler = self.scene.chunk_handler
+        self.outline_handler = OutlineHandler(self, self.scene.vao_handler)
         # Make a vector for the position
         self.position = glm.vec3(*position)
         # Set an arbitrary direction
@@ -123,20 +126,15 @@ class Player:
         mouse_buttons = self.scene.engine.mouse_buttons
         prev_mouse_buttons = self.scene.engine.prev_mouse_buttons
 
-        # Breaking a block
-        if mouse_buttons[0] and not prev_mouse_buttons[0]:
-            if self.target_voxel: self.chunk_handler.set_voxel(*self.target_voxel[:3], 0)
-        
-        # Place a block
-        if mouse_buttons[2] and not prev_mouse_buttons[2]:
-            if self.target_voxel: 
-                place_position = self.target_voxel[0] + self.target_voxel[3][0], self.target_voxel[1] + self.target_voxel[3][1], self.target_voxel[2] + self.target_voxel[3][2]
-                if self.can_place(glm.vec3(*place_position)): 
-                    selected_item = self.scene.project.ui_handler.inventory.item_slots[self.scene.project.ui_handler.hot_bar_selection][0]
-                    if selected_item: 
-                        selected_block_id = selected_item.template.block_id
-                        if selected_block_id:
-                            self.chunk_handler.set_voxel(*place_position, selected_block_id)
+
+        if self.scene.project.ui_handler.menu_state == 'hotbar':
+            # Breaking a block
+            if mouse_buttons[0] and not prev_mouse_buttons[0]:
+                self.break_block()
+            
+            # Place a block
+            if mouse_buttons[2] and not prev_mouse_buttons[2]:
+                self.right_click()
 
 
         # Reset the velocity to accelerate towards
@@ -174,6 +172,53 @@ class Player:
             self.velocity += (self.target_velocity - self.velocity) * self.acceleration * dt
         else:
             self.velocity.xz += (self.target_velocity.xz - self.velocity.xz) * self.acceleration * dt
+
+    def break_block(self):
+        # Check if there is a block in range
+        if not self.target_voxel: return
+
+        # Get the block data
+        target_block_id = self.chunk_handler.get_voxel_id(*self.target_voxel[:3])
+        target_drops = self.scene.project.ui_handler.block_data_handler.block_data_templates[target_block_id].drops[0]
+
+        # Add the block to the inventory
+        self.scene.project.ui_handler.inventory.quick_drop(Item(self.scene.project.ui_handler.item_data_handler.item_data_templates[target_drops], 1))
+        self.scene.project.ui_handler.update_texture = True
+
+        # Set the voxel to air
+        self.chunk_handler.set_voxel(*self.target_voxel[:3], 0)
+
+    def right_click(self):
+        # Check there is a place location in range
+        if not self.target_voxel: return
+
+        # Get the block data
+        target_block_id = self.chunk_handler.get_voxel_id(*self.target_voxel[:3])
+
+        # Check for interactions
+        if self.scene.project.block_interaction_handler.interact(target_block_id, *self.target_voxel[:3]): return
+
+        # Check that the player is not inside of target location
+        place_position = self.target_voxel[0] + self.target_voxel[3][0], self.target_voxel[1] + self.target_voxel[3][1], self.target_voxel[2] + self.target_voxel[3][2]
+        if not self.can_place(glm.vec3(*place_position)): return
+        
+        # Check that the player is holding an item
+        selected_item = self.scene.project.ui_handler.inventory.item_slots[self.scene.project.ui_handler.hot_bar_selection][0]
+        if not selected_item: return
+        
+        # Check that the player's item is placeable
+        if not selected_item.template.placeable: return
+        
+        # Place a block of the ID of the held item
+        self.chunk_handler.set_voxel(*place_position, selected_item.template.block_id)
+
+        # Remove one of the block from inventory
+        selected_item.quantity -= 1
+        self.scene.project.ui_handler.update_texture = True
+
+        # Clear item if empty
+        if selected_item.quantity != 0: return 
+        self.scene.project.ui_handler.inventory.item_slots[self.scene.project.ui_handler.hot_bar_selection][0] = None
 
     def raycast(self, max_distance: int=5) -> tuple:
         """

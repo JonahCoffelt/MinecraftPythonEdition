@@ -64,17 +64,6 @@ class Engine:
                 self.project_handler.current_project.current_scene.use()
                 self.project_handler.current_project.texture_handler.generate_frame_buffer()
                 self.project_handler.current_project.ui_handler.resize(self.win_size)
-            if event.type == pg.KEYUP:
-                if event.key == pg.K_ESCAPE:
-                    # Unlock mouse
-                    pg.event.set_grab(False)
-                    pg.mouse.set_visible(True)
-                if event.key == pg.K_1:
-                    scenes = list(self.project_handler.current_project.scenes.keys())
-                    self.project_handler.current_project.set_scene(scenes[0])
-                if event.key == pg.K_2:
-                    scenes = list(self.project_handler.current_project.scenes.keys())
-                    self.project_handler.current_project.set_scene(scenes[1])     
 
         # Update Project
         self.project_handler.update()

@@ -9,6 +9,7 @@ class VBOHandler:
         self.vbos = {}
         self.vbos['frame'] = FrameVBO(self.ctx)
         self.vbos['cube'] = CubeVBO(self.ctx)
+        self.vbos['outline'] = CubeOutlineVBO(self.ctx)
 
     def load_vbo(self, path: str='vbo'):
         raise RuntimeError('VBOHandler.add_vbo: No support for vbo loading')
@@ -131,6 +132,57 @@ class CubeVBO(BaseVBO):
         vertex_data = np.hstack([vertex_data, tex_coord_data])
         return vertex_data
     
+class CubeOutlineVBO():
+    def __init__(self, ctx):
+        self.ctx = ctx
+        self.vbo = self.get_vbo()
+        self.format = '3f'
+        self.attribs = ['in_position']
+
+    def get_vbo(self):
+        verticies = np.array([
+            # Top Face
+            (-0.001, 1.001, -0.001),
+            (1.001, 1.001, -0.001),
+
+            (-0.001, 1.001, -0.001),
+            (-0.001, 1.001, 1.001),
+
+            (1.001, 1.001, 1.001),
+            (1.001, 1.001, -0.001),
+
+            (1.001, 1.001, 1.001),
+            (-0.001, 1.001, 1.001),
+
+            # Bottom Face
+            (-0.001,  -0.001, -0.001),
+            (1.001,  -0.001, -0.001),
+
+            (-0.001,  -0.001, -0.001),
+            (-0.001,  -0.001, 1.001),
+
+            (1.001,  -0.001, 1.001),
+            (1.001,  -0.001, -0.001),
+
+            (1.001,  -0.001, 1.001),
+            (-0.001,  -0.001, 1.001),
+
+            # Sides
+            (-0.001, 1.001, -0.001),
+            (-0.001, -0.001, -0.001),
+
+            (1.001, 1.001, -0.001),
+            (1.001, -0.001, -0.001),
+
+            (-0.001, 1.001, 1.001),
+            (-0.001, -0.001, 1.001),
+
+            (1.001, 1.001, 1.001),
+            (1.001, -0.001, 1.001),
+        ], dtype='f4')
+        
+        vbo = self.ctx.buffer(verticies)
+        return vbo
 
 class FrameVBO(BaseVBO):
     def __init__(self, ctx):

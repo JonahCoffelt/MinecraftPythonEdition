@@ -52,6 +52,30 @@ class ItemContainer:
 
         return self.item_slots[x][y]
     
+    def quick_drop(self, item):
+        # Drop to same-id stacks
+        for y in range(self.dimensions[1]):
+            for x in range(self.dimensions[0]):
+                if not self.item_slots[x][y]: continue
+                if self.item_slots[x][y].template.item_id != item.template.item_id: continue
+
+                difference = min(item.template.max_stack - self.item_slots[x][y].quantity, item.quantity)
+
+                self.item_slots[x][y].quantity += difference
+                item.quantity -= difference
+
+                if item.quantity <= 0: return
+
+        # Drop to empty slots
+        for y in range(self.dimensions[1]):
+            for x in range(self.dimensions[0]):
+                if self.item_slots[x][y]: continue
+                self.item_slots[x][y] = item
+                return
+            
+        # Return leftovers
+        return item
+
     def depreciate(self, amount: int=1):
         for x, x_level in enumerate(self.item_slots):
             for y, item in enumerate(x_level):

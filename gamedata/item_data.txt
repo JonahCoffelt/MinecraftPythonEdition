@@ -4,5 +4,5 @@ item_id: int,   block_id: int,  texture_id: int,    name: str,      placeable: b
 3;              3;              4;                  Oak_Wood;       True;               2;                  64;                 0;                      [1, 1, 1]
 4;              4;              6;                  Oak_Plank;      True;               2;                  64;                 0;                      [1, 1, 1]
 5;              5;              7;                  Cobble_Stone;   True;               1;                  64;                 0;                      [1, 1, 1]
-6;              0;              8;                  Stick;          False;              0;                  64;                 0;                      [1, 1, 1]
+6;              0;              8;                  Stick;          False;              0;                  16;                 0;                      [1, 1, 1]
 7;              6;              9;                  Crafting_Table; True;               2;                  64;                 0;                      [1, 1, 1]

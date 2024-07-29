@@ -15,6 +15,7 @@ class ShaderHandler:
 
         self.programs['frame'] = self.load_program('frame')
         self.programs['voxel'] = self.load_program('voxel')
+        self.programs['outline'] = self.load_program('outline')
 
     def load_program(self, name: str='default') -> mgl.Program:
         """

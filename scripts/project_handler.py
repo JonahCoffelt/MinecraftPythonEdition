@@ -3,6 +3,7 @@ from scripts.vao_handler import VAOHandler
 from scripts.texture_handler import TextureHandler
 from scripts.ui_handler import UIHandler
 from scripts.craft_handler import CraftHandler
+from scripts.block_interactions import BlockInteractionsHandler
 
 class ProjectHandler:
     """
@@ -92,6 +93,8 @@ class Project:
         self.craft_handler = CraftHandler()
         # Creates a UI handler
         self.ui_handler = UIHandler(self)
+        # Maps blocks to interactions
+        self.block_interaction_handler = BlockInteractionsHandler(self)
 
     def update(self) -> None:
         """

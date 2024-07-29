@@ -13,7 +13,7 @@ class Camera:
     """
     Camera object to get view and projection matricies. Movement built in
     """
-    def __init__(self, engine, scene, position=(0, 3, 35), yaw=-90, pitch=0) -> None:
+    def __init__(self, engine, scene, position=(0, 3, 0), yaw=-90, pitch=0) -> None:
         # Stores the engine to acces viewport and inputs
         self.engine = engine
         self.scene = scene
