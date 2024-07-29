@@ -7,7 +7,7 @@ class VBOHandler:
     def __init__(self, ctx):
         self.ctx = ctx
         self.vbos = {}
-        self.vbos['frame'] = FrameVBO(self.ctx)
+        self.vbos['quad'] = QuadVBO(self.ctx)
         self.vbos['cube'] = CubeVBO(self.ctx)
         self.vbos['outline'] = CubeOutlineVBO(self.ctx)
 
@@ -184,7 +184,7 @@ class CubeOutlineVBO():
         vbo = self.ctx.buffer(verticies)
         return vbo
 
-class FrameVBO(BaseVBO):
+class QuadVBO(BaseVBO):
     def __init__(self, ctx):
         super().__init__(ctx)
         self.format = '3f 2f'

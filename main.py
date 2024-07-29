@@ -30,7 +30,8 @@ class Engine:
         # MGL context
         self.ctx = mgl.create_context()
         # Basic Gl setup
-        self.ctx.enable(flags=mgl.DEPTH_TEST | mgl.CULL_FACE)
+        #self.ctx.enable(flags=mgl.DEPTH_TEST | mgl.CULL_FACE)
+        self.ctx.enable(flags=mgl.DEPTH_TEST)
         # Time variables
         self.clock = pg.time.Clock()
         self.time = 0

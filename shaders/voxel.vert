@@ -36,12 +36,6 @@ const vec3 faceNormals[6] = vec3[6](
     vec3(0, 0, 1), vec3(0, 0, -1)
 );
 
-//const int textures[18] = int[18](
-//    0, 2, 1, 1, 1, 1,
-//    3, 3, 3, 3, 3, 3,
-//    5, 5, 4, 4, 4, 4
-//);
-
 void main() {
     int uv_index = gl_VertexID % 6 + (in_face & 1) * 6;
     uv = vec3(uv_coords[uv_indicies[uv_index]], textures[in_face + (in_id - 1) * 6]);

@@ -1,6 +1,7 @@
 from scripts.player import Player
 from scripts.camera import *
 from scripts.chunk_handler import ChunkHandler
+from scripts.item_entity_handler import ItemEntityHandler
 
 
 import moderngl as mgl
@@ -27,6 +28,9 @@ class Scene:
         self.player = Player(self)
         self.camera = FirstPersonCamera(self.engine, self, self.player)
 
+        # Item entities
+        self.item_entity_handler = ItemEntityHandler(self)
+
     def use(self):
         """
         Selects this scene for rendering and updating
@@ -47,9 +51,11 @@ class Scene:
 
         self.vao_handler.shader_handler.update_uniforms()
         self.project.texture_handler.write_textures(self.vao_handler.shader_handler.programs['voxel'])
+        self.project.texture_handler.write_textures(self.vao_handler.shader_handler.programs['item_entity'])
         self.camera.update()
         self.player.update()
         self.chunk_handler.update()
+        self.item_entity_handler.update()
         self.project.ui_handler.update()
 
     def render(self):
@@ -61,6 +67,7 @@ class Scene:
         self.project.texture_handler.framebuffer.use()
         self.chunk_handler.render()
         self.player.outline_handler.render()
+        self.item_entity_handler.render()
 
         self.ctx.screen.use()
         self.vao_handler.shader_handler.programs['frame']['frameTexture'] = 0

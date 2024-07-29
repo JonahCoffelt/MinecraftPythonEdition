@@ -16,7 +16,7 @@ class VAOHandler:
         self.vaos = {}
         self.vao_to_vbo_key = {}
 
-        self.add_vao('frame', 'frame', 'frame')
+        self.add_vao('frame', 'frame', 'quad')
         self.add_vao('cube', 'voxel', 'cube')
         self.add_vao('outline', 'outline', 'outline')
         self.add_vao('outline', 'outline', 'outline')

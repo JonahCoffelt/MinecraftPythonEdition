@@ -1,7 +1,7 @@
 import pygame as pg
 import glm
+import random
 from math import cos, sin
-from scripts.item import Item
 from scripts.outline_handler import OutlineHandler
 
 
@@ -182,8 +182,12 @@ class Player:
         target_drops = self.scene.project.ui_handler.block_data_handler.block_data_templates[target_block_id].drops[0]
 
         # Add the block to the inventory
-        self.scene.project.ui_handler.inventory.quick_drop(Item(self.scene.project.ui_handler.item_data_handler.item_data_templates[target_drops], 1))
-        self.scene.project.ui_handler.update_texture = True
+        # self.scene.project.ui_handler.inventory.quick_drop(Item(self.scene.project.ui_handler.item_data_handler.item_data_templates[target_drops], 1))
+        # self.scene.project.ui_handler.update_texture = True
+
+        # Drop the block
+        item = self.scene.project.ui_handler.item_data_handler.item_data_templates[target_drops]
+        self.scene.item_entity_handler.add(item.item_id, item.texture_id, self.target_voxel[0] + .5 + random.uniform(-.25, .25), self.target_voxel[1] + .2, self.target_voxel[2] + .5 + random.uniform(-.25, .25), y_vel=random.uniform(2, 4))
 
         # Set the voxel to air
         self.chunk_handler.set_voxel(*self.target_voxel[:3], 0)
