@@ -5,3 +5,29 @@ Oak Log,         5,  5,  4,  4,  4,  4
 Oak Plank,       6,  6,  6,  6,  6,  6
 Cobble Stone,    7,  7,  7,  7,  7,  7
 Crafting Table, 11,  6, 10, 10,  9, 10
+birch log,      13, 13, 12, 12, 12, 12
+birch plank,    14, 14, 14, 14, 14, 14
+spruce log,     16, 16, 15, 15, 15, 15
+spruce plank,   17, 17, 17, 17, 17, 17
+coal block,     18, 18, 18, 18, 18, 18
+coal ore,       19, 19, 19, 19, 19, 19
+iron ore,       22, 22, 22, 22, 22, 22
+iron block,     23, 23, 23, 23, 23, 23
+gold ore,       26, 26, 26, 26, 26, 26
+gold block,     27, 27, 27, 27, 27, 27
+diamond ore,    30, 30, 30, 30, 30, 30
+diamond block,  31, 31, 31, 31, 31, 31
+sand,           32, 32, 32, 32, 32, 32
+gravel,         33, 33, 33, 33, 33, 33
+clay,           34, 34, 34, 34, 34, 34
+andesite,       35, 35, 35, 35, 35, 35
+pol andesite,   36, 36, 36, 36, 36, 36
+diorite,        37, 37, 37, 37, 37, 37
+pol diorite,    38, 38, 38, 38, 38, 38
+granite,        39, 39, 39, 39, 39, 39
+pol granite,    40, 40, 40, 40, 40, 40
+stone bricks,   41, 41, 41, 41, 41, 41
+bricks,         42, 42, 42, 42, 42, 42
+oak leave,      46, 46, 46, 46, 46, 46
+birch leaves,   47, 47, 47, 47, 47, 47
+spruce leave,   48, 48, 48, 48, 48, 48
