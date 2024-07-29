@@ -50,8 +50,13 @@ class UIHandler:
         self.menu_func = self.draw_hotbar
         self.update_func = self.update_hotbar
 
-        for i in range(33):
-            self.inventory.quick_drop(Item(self.item_data_handler.item_data_templates[i + 1], 64))
+        self.inventory.quick_drop(Item(self.item_data_handler.item_data_templates[12], 32))
+        self.inventory.quick_drop(Item(self.item_data_handler.item_data_templates[15], 32))
+        self.inventory.quick_drop(Item(self.item_data_handler.item_data_templates[17], 32))
+        self.inventory.quick_drop(Item(self.item_data_handler.item_data_templates[19], 32))
+
+        for i in range(10):
+            self.inventory.quick_drop(Item(self.item_data_handler.item_data_templates[i + 1], 32))
   
     def use(self, scene, frame_vao, win_size=(800, 800)):
         # Save refernece to parent scene and frame vao

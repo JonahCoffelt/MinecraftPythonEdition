@@ -13,7 +13,7 @@ class ChunkHandler:
         self.update_chunks = set()
         # Set chunk parameters
         self.chunk_size = 32
-        self.world_size = 2
+        self.world_size = 4
 
         # Create all chunks
         dim = self.world_size//2
@@ -109,17 +109,86 @@ class ChunkHandler:
 
     
     def generate(self):
-        seed = random.randrange(10000)
+        self.seed = random.randrange(10000)
         dim = (self.world_size//2) * self.chunk_size
-        for x in range(-dim, dim + 1):
-            for z in range(-dim, dim + 1):
-                height = int((glm.simplex(glm.vec3(x + seed, 1.5 + seed, z + seed) * 0.05) + 1) * 10)
 
-                for y in range(-dim, height + 1):
-                    if (glm.simplex(glm.vec3(x + seed, y + seed, z + seed) * 0.05) + 1 - y/200) > 1.4: continue
+        for chunk_x in range(-self.world_size//2, self.world_size//2+1):
+            for chunk_z in range(-self.world_size//2, self.world_size//2+1):
+                self.generate_chunk(chunk_x, chunk_z)
 
-                    if y == height: self.set_voxel(x, height, z, 1)
-                    else: self.set_voxel(x, y, z, 2)
-        
         for chunk in self.chunks.values():
             chunk.build_vao()
+
+
+    def generate_chunk(self, chunk_x, chunk_z):
+        random.seed(str(chunk_x) + str(chunk_z))
+
+        for x in range(chunk_x * self.chunk_size, chunk_x * self.chunk_size + self.chunk_size):
+            for z in range(chunk_z * self.chunk_size, chunk_z * self.chunk_size + self.chunk_size):
+                temp = glm.simplex(glm.vec3(x + self.seed, self.seed + 2001, z + self.seed) * 0.001)/2 + 0.5
+                rain = glm.simplex(glm.vec3(x + self.seed, self.seed + 1001, z + self.seed) * 0.025)/2 + 0.5
+
+                if temp > 0.5:
+                    if rain > 0.5:
+                        # Shrubland
+                        self.generate_forest(x, z, temp, rain)
+                    else:
+                        # Desert
+                        self.generate_desert(x, z, temp, rain)
+                else:
+                    if rain > 0.5:
+                        # Forest
+                        self.generate_forest(x, z, temp, rain)
+                    else:
+                        # Plains
+                        self.generate_plains(x, z, temp, rain)
+
+    def generate_plains(self, x, z, temp, rain):
+        self.surf_block = 1
+
+        wide_height = int((glm.simplex(glm.vec3(x + self.seed, 1.5 + self.seed, z + self.seed) * 0.005)) *  (rain + .5) * 15)
+        hill_height = int((glm.simplex(glm.vec3(x + self.seed, 1.5 + self.seed, z + self.seed) * 0.02)) *  (rain + .5) * 8)
+        mound_height = int((glm.simplex(glm.vec3(x + self.seed, 1.5 + self.seed, z + self.seed) * 0.05)) * (rain + .5) * 2)
+
+        height = wide_height + hill_height + mound_height
+
+        for y in range(-((self.world_size//2) * self.chunk_size), height + 1):
+            if (glm.simplex(glm.vec3(x + self.seed, y - self.seed, z + self.seed) * 0.05) - y/200) > 0.45: continue
+
+            if y == height: self.set_voxel(x, height, z, self.surf_block)
+            else: self.set_voxel(x, y, z, 2)
+    
+    def generate_desert(self, x, z, temp, rain):
+        self.surf_block = 19
+
+        wide_height = int((glm.simplex(glm.vec3(x + self.seed, 1.5 + self.seed, z + self.seed) * 0.005)) *  (rain + .5) * 15)
+        hill_height = int((glm.simplex(glm.vec3(x + self.seed, 1.5 + self.seed, z + self.seed) * 0.02)) *  (rain + .5) * 8)
+        mound_height = int((glm.simplex(glm.vec3(x + self.seed, 1.5 + self.seed, z + self.seed) * 0.05)) * (rain + .5) * 2)
+
+        height = wide_height + hill_height + mound_height
+
+        for y in range(-((self.world_size//2) * self.chunk_size), height + 1):
+            if (glm.simplex(glm.vec3(x + self.seed, y - self.seed, z + self.seed) * 0.05) - y/200) > 0.45: continue
+
+            if y == height: self.set_voxel(x, height, z, self.surf_block)
+            else: self.set_voxel(x, y, z, 2)
+    
+    def generate_forest(self, x, z, temp, rain):
+        self.surf_block = 1
+
+        wide_height = int((glm.simplex(glm.vec3(x + self.seed, 1.5 + self.seed, z + self.seed) * 0.005)) *  (rain + .5) * 15)
+        hill_height = int((glm.simplex(glm.vec3(x + self.seed, 1.5 + self.seed, z + self.seed) * 0.02)) *  (rain + .5) * 8)
+        mound_height = int((glm.simplex(glm.vec3(x + self.seed, 1.5 + self.seed, z + self.seed) * 0.05)) * (rain + .5) * 2)
+
+        height = wide_height + hill_height + mound_height
+
+        for y in range(-((self.world_size//2) * self.chunk_size), height + 1):
+            if (glm.simplex(glm.vec3(x + self.seed, y - self.seed, z + self.seed) * 0.05) - y/200) > 0.45: continue
+
+            if y == height: self.set_voxel(x, height, z, self.surf_block)
+            else: self.set_voxel(x, y, z, 2)
+        
+        if self.get_voxel_id(x, height, z) and random.randrange(0, 100) > 96:
+            tree_height =  random.randrange(4, 7)
+            for i in range(tree_height):
+                self.set_voxel(x, height +  i, z, 3)
