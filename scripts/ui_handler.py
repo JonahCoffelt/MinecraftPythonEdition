@@ -42,6 +42,7 @@ class UIHandler:
         # Create a blank inventory
         self.inventory = ItemContainer((9, 4))
         self.crafter = ItemContainer((2, 2))
+        self.block_container = None
         self.hot_bar_selection = 0
         self.grabbed_item = None
         self.recipe_result_item = None
@@ -200,6 +201,19 @@ class UIHandler:
 
         self.update_texture = True
 
+    def set_menu_chest(self):
+        # Update inventory stare
+        self.menu_state = 'chest'
+        self.update_func = self.update_chest
+        self.menu_func = self.draw_chest
+        # Update mouse
+        pg.event.set_grab(False)
+        pg.mouse.set_visible(True)
+        screen_res = pyautogui.size()
+        pyautogui.moveTo(screen_res[0]/2, screen_res[1]/2, duration=0, _pause=False)
+
+        self.update_texture = True
+
     def draw(self):
         """
         Draws all pygame elements to the UI
@@ -230,9 +244,17 @@ class UIHandler:
         self.draw_3x3_craft_grid()
         self.draw_grabbed_item()
 
+    def draw_chest(self):
+        self.draw_inventory_slots()
+        self.draw_chest_slots()
+        self.draw_grabbed_item()
+
     def draw_inventory_slots(self):
         self.menu_handler.draw_slots((.5, .5, 9, 3), np.reshape(self.inventory.item_slots[:,1:], (9, 3)), (-1, -1))
         self.menu_handler.draw_slots((.5, .7, 9, 1), np.reshape(self.inventory.item_slots[:,0 ], (9, 1)), (-1, -1))
+
+    def draw_chest_slots(self):
+        self.menu_handler.draw_slots((.5, .25, 9, 3), np.reshape(self.block_container.item_slots, (9, 3)), (-1, -1))
 
     def draw_grabbed_item(self):
 
@@ -305,6 +327,27 @@ class UIHandler:
 
         self.process_menu_clicks(menu, position)
 
+    def update_chest(self):
+        """
+        Update all mouse inputs in the inventory menu
+        """
+        
+        if pg.mouse.get_rel() != (0, 0) and self.grabbed_item: self.update_texture = True
+
+        if not (self.engine.mouse_buttons[0] or self.engine.mouse_buttons[2]):
+            return
+
+        menu, position = None, None
+        mouse_position = self.engine.mouse_position
+
+        menu, position = self.update_inventory_slots(mouse_position, menu, position)
+        menu, position = self.update_chest_slots(mouse_position, menu, position)
+
+        # Check if the click is in a menu
+        if not menu: return
+
+        self.process_menu_clicks(menu, position)
+
     def update_inventory_slots(self, mouse_position, menu, position):
         # Top/Big inventory
         grid_position = self.menu_handler.get_mouse_grid(mouse_position, (.5, .5, 9, 3))
@@ -316,6 +359,15 @@ class UIHandler:
         grid_position = self.menu_handler.get_mouse_grid(mouse_position, (.5, .7, 9, 1))
         if grid_position:
             menu = self.inventory
+            position = grid_position[0], grid_position[1]
+
+        return menu, position
+    
+    def update_chest_slots(self, mouse_position, menu, position):
+        # Chest container
+        grid_position = self.menu_handler.get_mouse_grid(mouse_position, (.5, .25, 9, 3))
+        if grid_position:
+            menu = self.block_container
             position = grid_position[0], grid_position[1]
 
         return menu, position

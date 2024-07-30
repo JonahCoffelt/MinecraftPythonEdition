@@ -250,6 +250,7 @@ class Player:
         
         # Place a block of the ID of the held item
         self.chunk_handler.set_voxel(*place_position, selected_item.template.block_id)
+        self.scene.project.block_interaction_handler.place(selected_item.template.block_id, *place_position)
 
         # Remove one of the block from inventory
         selected_item.quantity -= 1

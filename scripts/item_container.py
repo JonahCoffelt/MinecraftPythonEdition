@@ -83,3 +83,15 @@ class ItemContainer:
                 item.quantity -= amount
                 if item.quantity <= 0:
                     self.item_slots[x][y] = None
+
+
+class BlockContainerHandler:
+    def __init__(self) -> None:
+        self.block_containers = {}
+
+    def add(self, x, y, z, dimensions):
+        self.block_containers[(x, y, z)] = ItemContainer(dimensions)
+
+    def get(self, x, y, z) -> ItemContainer:
+        if (x, y, z) not in self.block_containers: return
+        return self.block_containers[(x, y, z)]
