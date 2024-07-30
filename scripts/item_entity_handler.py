@@ -46,9 +46,9 @@ class ItemEntityHandler:
     def render(self):
         self.buffer.write(np.array(self.items[:self.add_index,:5], order='C'))
 
-        #self.ctx.enable(flags=mgl.BLEND)
+        self.ctx.disable(flags=mgl.CULL_FACE)
         self.vao.render(instances=self.add_index)
-        #self.ctx.disable(flags=mgl.BLEND)
+        self.ctx.enable(flags=mgl.CULL_FACE)
 
     def update(self):
         dt = self.scene.engine.dt

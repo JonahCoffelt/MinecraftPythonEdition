@@ -15,16 +15,16 @@ class BlockDataHandler:
         for block in block_data_list:
             self.add_block(int(block[0]), str(block[1]), int(block[2]), float(block[3]), list(map(int, block[4][1:-1].split(', '))))
 
-    def add_block(self, block_id: int, name: str, block_type: int, break_time: float, drops: list) -> None:
-        self.block_data_templates[block_id] = BlockTemplate(block_id, name, block_type, break_time, drops)
+    def add_block(self, block_id: int, name: str, block_type: int, hardness: float, drops: list) -> None:
+        self.block_data_templates[block_id] = BlockTemplate(block_id, name, block_type, hardness, drops)
 
 
 class BlockTemplate:
-    def __init__(self, block_id: int, name: str, block_type: int, break_time: float, drops: list) -> None:
+    def __init__(self, block_id: int, name: str, block_type: int, hardness: float, drops: list) -> None:
         self.block_id = block_id
         self.name = name.replace('_', ' ')
         self.block_type = block_type
-        self.break_time = break_time
+        self.hardness = hardness
         self.drops = drops
     
     def __repr__(self) -> str:

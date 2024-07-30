@@ -33,7 +33,7 @@ class TextureHandler:
         for texture in self.textures:
             data.append(texture.read())
         data = np.array(data)
-        self.texture_array = self.ctx.texture_array((self.size, self.size, len(self.textures)), 3, data)
+        self.texture_array = self.ctx.texture_array((self.size, self.size, len(self.textures)), 4, data)
         # Mipmaps
         texture.build_mipmaps()
         self.texture_array.filter = (mgl.NEAREST, mgl.NEAREST)
@@ -60,7 +60,8 @@ class TextureHandler:
         self.texture_surfaces.append(texture)
 
         # Create and save an MGL texture
-        texture = self.ctx.texture(size=texture.get_size(), components=3, data = pg.image.tostring(texture, 'RGB'))
+        texture = self.ctx.texture(size=texture.get_size(), components=4, data = pg.image.tostring(texture, 'RGBA'))
+        texture.swizzel = 'RGBA'
         self.textures.append(texture)
 
     def generate_frame_buffer(self):
@@ -74,7 +75,7 @@ class TextureHandler:
         self.depth_texture = self.ctx.depth_texture(size)
         self.frame_texture = self.ctx.texture(size, 4, dtype='f4')
 
-        self.framebuffer = self.ctx.framebuffer([self.frame_texture], self.depth_texture)
+        self.framebuffer = self.ctx.framebuffer([self.frame_texture], self.depth_texture)        
 
     def set_directory(self, directory: str=None) -> None:
         """

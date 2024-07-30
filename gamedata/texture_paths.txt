@@ -84,3 +84,17 @@ diamond_boots
 diamond_leggings
 diamond_chestplate
 diamond_helmet
+destroy_stage_0
+destroy_stage_1
+destroy_stage_2
+destroy_stage_3
+destroy_stage_4
+destroy_stage_5
+destroy_stage_6
+destroy_stage_7
+destroy_stage_8
+destroy_stage_9
+chest_top
+chest_bottom
+chest_side
+chest_front

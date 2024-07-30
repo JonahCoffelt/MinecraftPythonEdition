@@ -15,5 +15,18 @@ class OutlineHandler:
         voxel_position = glm.vec3(*self.player.target_voxel[:3])
         self.vao_handler.shader_handler.programs['outline']['voxel_position'].write(voxel_position)
 
-        # Redner
+        # Render
         self.vao_handler.vaos['outline'].render(mgl.LINES)
+
+        if not self.player.mining_timer: return
+        
+        m_model = glm.mat4()
+        m_model = glm.translate(m_model, glm.vec3(*self.player.current_mine_block[:3]) + glm.vec3(0.501))
+        m_model = glm.scale(m_model, glm.vec3(.502))
+        
+        mining_progress = 86 + int((self.player.mining_timer / self.player.mining_duration) * 7)
+
+        self.vao_handler.shader_handler.programs['default']['m_model'].write(m_model)
+        self.vao_handler.shader_handler.programs['default']['texture_id'].write(glm.int32(mining_progress))
+
+        self.vao_handler.vaos['mining'].render()

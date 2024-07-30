@@ -18,6 +18,7 @@ class Player:
         self.forward = glm.vec3(0, 0, 0)
         self.right = glm.vec3(0, 0, 0)
         self.UP = glm.vec3(0, 1, 0)
+
         # Movement variables
         self.velocity = glm.vec3(0, 0, 0)  # Voxels per second
         self.target_velocity = glm.vec3(0, 0, 0)  # Voxels per second
@@ -30,8 +31,15 @@ class Player:
         self.sprint = False
         self.flying = True
         self.has_jump = True
+
         # Player size
         self.size = glm.vec3(.6, 1.8, .6) # Voxels
+
+        # Interaction
+        self.mining_timer = 0
+        self.mining_duration = 0
+        self.current_mine_block = None
+        self.current_mine_template = None
 
     def update(self):
         # Get the voxel the player is looking at
@@ -129,8 +137,10 @@ class Player:
 
         if self.scene.project.ui_handler.menu_state == 'hotbar':
             # Breaking a block
-            if mouse_buttons[0] and not prev_mouse_buttons[0]:
-                self.break_block()
+            if mouse_buttons[0]:
+                self.left_click()
+            else:
+                self.mining_timer = 0
             
             # Place a block
             if mouse_buttons[2] and not prev_mouse_buttons[2]:
@@ -191,6 +201,31 @@ class Player:
 
         # Set the voxel to air
         self.chunk_handler.set_voxel(*self.target_voxel[:3], 0)
+
+    def left_click(self):
+        # Check if there is a block in range
+        if not self.target_voxel: return
+
+        # Reset the block being mined if needed
+        if self.current_mine_block != self.target_voxel[:3]: 
+            self.current_mine_block = self.target_voxel[:3]
+            self.mining_timer = 0
+
+            self.current_mine_template = self.scene.project.ui_handler.block_data_handler.block_data_templates[self.chunk_handler.get_voxel_id(*self.current_mine_block[:3])]
+            self.tool = self.scene.project.ui_handler.inventory.item_slots[self.scene.project.ui_handler.hot_bar_selection][0]
+
+            self.mining_duration = self.current_mine_template.hardness * 1.5
+
+        # Increase the mining timer
+        if not self.tool:
+            self.mining_timer += self.scene.engine.dt
+        elif self.tool.template.tool_data[0] == self.current_mine_template.block_type:
+            self.mining_timer += self.scene.engine.dt * self.tool.template.tool_data[1]
+        else:
+            self.mining_timer += self.scene.engine.dt
+
+        if self.mining_timer >= self.mining_duration:
+            self.break_block()
 
     def right_click(self):
         # Check there is a place location in range

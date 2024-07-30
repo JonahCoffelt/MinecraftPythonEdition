@@ -40,6 +40,9 @@ class Scene:
         self.camera.use()
         self.vao_handler.shader_handler.write_all_uniforms()
         self.project.ui_handler.use(self, self.vao_handler.vaos['frame'], self.engine.win_size)
+        self.project.texture_handler.write_textures(self.vao_handler.shader_handler.programs['voxel'])
+        self.project.texture_handler.write_textures(self.vao_handler.shader_handler.programs['item_entity'])
+        self.project.texture_handler.write_textures(self.vao_handler.shader_handler.programs['default'])
 
     def update(self):
         """
@@ -50,8 +53,6 @@ class Scene:
         prev_keys = self.engine.prev_keys
 
         self.vao_handler.shader_handler.update_uniforms()
-        self.project.texture_handler.write_textures(self.vao_handler.shader_handler.programs['voxel'])
-        self.project.texture_handler.write_textures(self.vao_handler.shader_handler.programs['item_entity'])
         self.camera.update()
         self.player.update()
         self.chunk_handler.update()
