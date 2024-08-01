@@ -1,5 +1,5 @@
 block_id: int,  name: str,          block_type: int,    hardness: float,    drops: list
-1;              Grass;              0;                  0.5;                [1]
+1;              Grass;              0;                  0.75;               [79]
 2;              Stone;              1;                  1.5;                [5]
 3;              Oak_Wood;           2;                  2.0;                [3]
 4;              Oak_Plank;          2;                  2.0;                [4]
@@ -11,9 +11,9 @@ block_id: int,  name: str,          block_type: int,    hardness: float,    drop
 10;             Spruce_Plank;       2;                  2.0;                [11]
 11;             Coal_Block;         1;                  1.5;                [12]
 12;             Coal_Ore;           1;                  1.5;                [34]
-13;             Iron_Ore;           1;                  1.5;                [35]
+13;             Iron_Ore;           1;                  1.5;                [14]
 14;             Iron_Block;         1;                  1.5;                [15]
-15;             Gold_ore;           1;                  1.5;                [37]
+15;             Gold_ore;           1;                  1.5;                [16]
 16;             Gold_Block;         1;                  1.5;                [17]
 17;             Diamond_Ore;        1;                  1.5;                [39]
 18;             Diamond_Block;      1;                  1.5;                [19]
@@ -33,3 +33,4 @@ block_id: int,  name: str,          block_type: int,    hardness: float,    drop
 32;             Spruce_leave;       3;                  0.2;                [33]
 33;             Furnace;            1;                  2.5;                [77]
 34;             Chest;              2;                  2.5;                [78]
+35;             Dirt;               0;                  0.75;               [79]

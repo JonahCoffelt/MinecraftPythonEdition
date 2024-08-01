@@ -308,7 +308,9 @@ class Player:
         hit_points = (glm.vec3(-self.size.x / 2, -self.size.y / 2, -self.size.z / 2), glm.vec3( self.size.x / 2, -self.size.y / 2, -self.size.z / 2),
                       glm.vec3(-self.size.x / 2,  self.size.y / 2, -self.size.z / 2), glm.vec3(-self.size.x / 2, -self.size.y / 2,  self.size.z / 2),
                       glm.vec3(-self.size.x / 2,  self.size.y / 2,  self.size.z / 2), glm.vec3( self.size.x / 2, -self.size.y / 2,  self.size.z / 2),
-                      glm.vec3( self.size.x / 2,  self.size.y / 2, -self.size.z / 2), glm.vec3( self.size.x / 2,  self.size.y / 2,  self.size.z / 2))
+                      glm.vec3( self.size.x / 2,  self.size.y / 2, -self.size.z / 2), glm.vec3( self.size.x / 2,  self.size.y / 2,  self.size.z / 2),
+                      glm.vec3( self.size.x / 2, 0,  self.size.z / 2), glm.vec3(-self.size.x / 2, 0,  self.size.z / 2),
+                      glm.vec3( self.size.x / 2, 0, -self.size.z / 2), glm.vec3(-self.size.x / 2, 0, -self.size.z / 2))
 
         # Loop through each corner
         for hit_point in hit_points:
@@ -332,7 +334,9 @@ class Player:
         hit_points = (glm.vec3(-self.size.x / 2, -self.size.y / 2, -self.size.z / 2), glm.vec3( self.size.x / 2, -self.size.y / 2, -self.size.z / 2),
                       glm.vec3(-self.size.x / 2,  self.size.y / 2, -self.size.z / 2), glm.vec3(-self.size.x / 2, -self.size.y / 2,  self.size.z / 2),
                       glm.vec3(-self.size.x / 2,  self.size.y / 2,  self.size.z / 2), glm.vec3( self.size.x / 2, -self.size.y / 2,  self.size.z / 2),
-                      glm.vec3( self.size.x / 2,  self.size.y / 2, -self.size.z / 2), glm.vec3( self.size.x / 2,  self.size.y / 2,  self.size.z / 2))
+                      glm.vec3( self.size.x / 2,  self.size.y / 2, -self.size.z / 2), glm.vec3( self.size.x / 2,  self.size.y / 2,  self.size.z / 2),
+                      glm.vec3( self.size.x / 2, 0,  self.size.z / 2), glm.vec3(-self.size.x / 2, 0,  self.size.z / 2),
+                      glm.vec3( self.size.x / 2, 0, -self.size.z / 2), glm.vec3(-self.size.x / 2, 0, -self.size.z / 2))
 
         # Loop through each corner
         for hit_point in hit_points:

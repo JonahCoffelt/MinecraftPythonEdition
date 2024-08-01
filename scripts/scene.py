@@ -57,6 +57,7 @@ class Scene:
         self.player.update()
         self.chunk_handler.update()
         self.item_entity_handler.update()
+        self.project.block_interaction_handler.furnace_handler.update()
         self.project.ui_handler.update()
 
     def render(self):

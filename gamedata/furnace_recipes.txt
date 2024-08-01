@@ -1,0 +1,8 @@
+Result Name,    Base Item ID,   Result ID
+Stone;          5;              2
+Coal;           3;              34
+Coal;           8;              34
+Coal;           10;             34
+Coal;           13;             34
+Iron Ingot;     14;             35
+Gold Ingot;     16;             37

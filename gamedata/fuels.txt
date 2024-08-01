@@ -1,0 +1,9 @@
+Name,           item_id,    Items Smelted
+Oak Log;        3;          2
+Birch Log;      8;          2
+Spruce Log;     10;         2
+Oak Planks;     4;          1
+Birch Planks;   9;          1
+Spruce Planks;  11;         1
+Coal;           34;         8
+Coal Block;     12;         80

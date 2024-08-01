@@ -1,7 +1,7 @@
 import pygame as pg
 
 
-class MenuHandler:
+class SlotHandler:
     def __init__(self, ui_handler) -> None:
         # Reference to the UI handler
         self.ui_handler = ui_handler
