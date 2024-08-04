@@ -10,6 +10,7 @@ class Chunk:
         self.chunk_handler = chunk_handler
         # Create and array for voxel data
         self.voxel_array = np.zeros(shape=(dimension, dimension, dimension), dtype='i8')  # Use the (x, y, z)/[x][y][z] standard for voxel array
+        self.light = np.zeros(shape=(dimension, dimension, dimension), dtype='i8')
         self.dimension = dimension
         self.position = glm.vec3(x, y, z)
         # Create a mesh object for the chunk

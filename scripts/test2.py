@@ -1,8 +1,2 @@
-import random
-
-random.seed('11')
-
-print(random.uniform(0, 1))
-print(random.uniform(0, 1))
-print(random.uniform(0, 1))
-print(random.uniform(0, 1))
+for i, x in enumerate(range(4, 8)):
+    print(i, x)

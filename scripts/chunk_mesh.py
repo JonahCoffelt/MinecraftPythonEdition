@@ -56,16 +56,17 @@ def get_face_ao(neighbors, plane, x, y, z):
 
 
 @njit
-def get_mesh_buffer(chunk_voxels, neighbors):
+def get_mesh_buffer(chunk_voxels, chunk_light, neighbors):
     dim = chunk_voxels.shape[0]
-    vertex_data = np.zeros((dim ** 3 + 1) * 5 * 36, dtype='uint8')
-    index = 5 * 36
+    vertex_data = np.zeros((dim ** 3 + 1) * 7 * 36, dtype='uint8')
+    index = 7 * 36
     for x in range(dim):
         for y in range(dim):
             for z in range(dim):
                 if not chunk_voxels[x][y][z]: continue
 
                 id = chunk_voxels[x][y][z]
+                light_level = chunk_light[x][y][z]
 
                 # Front
                 if is_empty(neighbors, x, y, z + 1):
@@ -73,8 +74,8 @@ def get_mesh_buffer(chunk_voxels, neighbors):
 
                     face = 5
                     index = add_data(vertex_data, index, 
-                                        (x    , y    , z + 1, id, face, ao[0]), (x + 1, y + 1, z + 1, id, face, ao[2]), (x    , y + 1, z + 1, id, face, ao[1]), 
-                                        (x    , y    , z + 1, id, face, ao[0]), (x + 1, y    , z + 1, id, face, ao[3]), (x + 1, y + 1, z + 1, id, face, ao[2]))
+                                        (x    , y    , z + 1, id, face, ao[0], light_level), (x + 1, y + 1, z + 1, id, face, ao[2], light_level), (x    , y + 1, z + 1, id, face, ao[1], light_level), 
+                                        (x    , y    , z + 1, id, face, ao[0], light_level), (x + 1, y    , z + 1, id, face, ao[3], light_level), (x + 1, y + 1, z + 1, id, face, ao[2], light_level))
 
                 # Back
                 if is_empty(neighbors, x, y, z - 1):
@@ -82,8 +83,8 @@ def get_mesh_buffer(chunk_voxels, neighbors):
 
                     face = 4
                     index = add_data(vertex_data, index, 
-                                        (x    , y    , z    , id, face, ao[0]), (x    , y + 1, z    , id, face, ao[1]), (x + 1, y + 1, z    , id, face, ao[2]), 
-                                        (x    , y    , z    , id, face, ao[0]), (x + 1, y + 1, z    , id, face, ao[2]), (x + 1, y    , z    , id, face, ao[3]))
+                                        (x    , y    , z    , id, face, ao[0], light_level), (x    , y + 1, z    , id, face, ao[1], light_level), (x + 1, y + 1, z    , id, face, ao[2], light_level), 
+                                        (x    , y    , z    , id, face, ao[0], light_level), (x + 1, y + 1, z    , id, face, ao[2], light_level), (x + 1, y    , z    , id, face, ao[3], light_level))
 
                 # Top
                 if is_empty(neighbors, x, y + 1, z):
@@ -91,8 +92,8 @@ def get_mesh_buffer(chunk_voxels, neighbors):
 
                     face = 0
                     index = add_data(vertex_data, index, 
-                                        (x    , y + 1, z    , id, face, ao[0]), (x    , y + 1, z + 1, id, face, ao[3]), (x + 1, y + 1, z + 1, id, face, ao[2]), 
-                                        (x    , y + 1, z    , id, face, ao[0]), (x + 1, y + 1, z + 1, id, face, ao[2]), (x + 1, y + 1, z    , id, face, ao[1]))
+                                        (x    , y + 1, z    , id, face, ao[0], light_level), (x    , y + 1, z + 1, id, face, ao[3], light_level), (x + 1, y + 1, z + 1, id, face, ao[2], light_level), 
+                                        (x    , y + 1, z    , id, face, ao[0], light_level), (x + 1, y + 1, z + 1, id, face, ao[2], light_level), (x + 1, y + 1, z    , id, face, ao[1], light_level))
 
                 # Bottom
                 if is_empty(neighbors, x, y - 1, z):
@@ -100,8 +101,8 @@ def get_mesh_buffer(chunk_voxels, neighbors):
 
                     face = 1
                     index = add_data(vertex_data, index, 
-                                        (x    , y    , z    , id, face, ao[0]), (x + 1, y    , z + 1, id, face, ao[2]), (x    , y    , z + 1, id, face, ao[3]), 
-                                        (x    , y    , z    , id, face, ao[0]), (x + 1, y    , z    , id, face, ao[1]), (x + 1, y    , z + 1, id, face, ao[2]))
+                                        (x    , y    , z    , id, face, ao[0], light_level), (x + 1, y    , z + 1, id, face, ao[2], light_level), (x    , y    , z + 1, id, face, ao[3], light_level), 
+                                        (x    , y    , z    , id, face, ao[0], light_level), (x + 1, y    , z    , id, face, ao[1], light_level), (x + 1, y    , z + 1, id, face, ao[2], light_level))
 
                 # Right
                 if is_empty(neighbors, x + 1, y, z):
@@ -109,8 +110,8 @@ def get_mesh_buffer(chunk_voxels, neighbors):
 
                     face = 2
                     index = add_data(vertex_data, index,
-                                        (x + 1, y    , z    , id, face, ao[0]), (x + 1, y + 1, z    , id, face, ao[1]), (x + 1, y + 1, z + 1, id, face, ao[2]),
-                                        (x + 1, y    , z    , id, face, ao[0]), (x + 1, y + 1, z + 1, id, face, ao[2]), (x + 1, y    , z + 1, id, face, ao[3]))
+                                        (x + 1, y    , z    , id, face, ao[0], light_level), (x + 1, y + 1, z    , id, face, ao[1], light_level), (x + 1, y + 1, z + 1, id, face, ao[2], light_level),
+                                        (x + 1, y    , z    , id, face, ao[0], light_level), (x + 1, y + 1, z + 1, id, face, ao[2], light_level), (x + 1, y    , z + 1, id, face, ao[3], light_level))
 
                 # Left
                 if is_empty(neighbors, x - 1, y, z):
@@ -118,8 +119,8 @@ def get_mesh_buffer(chunk_voxels, neighbors):
 
                     face = 3
                     index = add_data(vertex_data, index,
-                                        (x    , y    , z    , id, face, ao[0]), (x    , y + 1, z + 1, id, face, ao[2]), (x    , y + 1, z    , id, face, ao[1]),
-                                        (x    , y    , z    , id, face, ao[0]), (x    , y    , z + 1, id, face, ao[3]), (x    , y + 1, z + 1, id, face, ao[2]))
+                                        (x    , y    , z    , id, face, ao[0], light_level), (x    , y + 1, z + 1, id, face, ao[2], light_level), (x    , y + 1, z    , id, face, ao[1], light_level),
+                                        (x    , y    , z    , id, face, ao[0], light_level), (x    , y    , z + 1, id, face, ao[3], light_level), (x    , y + 1, z + 1, id, face, ao[2], light_level))
 
     return vertex_data[:index]
 
@@ -134,8 +135,8 @@ class ChunkMeshVBO:
         self.chunk = chunk
         self.vbo = None
         self.build_mesh()
-        self.format = '3u1 1u1 1u1 1u1'
-        self.attribs = ['in_position', 'in_id', 'in_face', 'in_ao']
+        self.format = '3u1 1u1 1u1 1u1 1u1'
+        self.attribs = ['in_position', 'in_id', 'in_face', 'in_ao', 'in_light_level']
 
     def build_mesh(self):
         """
@@ -146,4 +147,4 @@ class ChunkMeshVBO:
 
         neighbors = self.chunk.chunk_handler.get_neighbor_chunk_arrays(*self.chunk.position.xyz)
 
-        self.vbo = self.ctx.buffer(get_mesh_buffer(self.chunk.voxel_array, neighbors))
+        self.vbo = self.ctx.buffer(get_mesh_buffer(self.chunk.voxel_array, self.chunk.light, neighbors))

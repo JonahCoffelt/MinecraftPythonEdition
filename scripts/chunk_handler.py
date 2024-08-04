@@ -2,7 +2,8 @@ import numpy as np
 import glm
 import random
 from scripts.chunk import Chunk
-
+from scripts.chunk_light import cascade_skylight2, get_sky_light
+import time
 
 class ChunkHandler:
     def __init__(self, scene) -> None:
@@ -11,9 +12,10 @@ class ChunkHandler:
         # Create an empty dictionary to hold the chunks. Keys will be the chunk's position
         self.chunks = {}
         self.update_chunks = set()
+        self.bake_chunks = set()
         # Set chunk parameters
-        self.chunk_size = 32
-        self.world_size = 6
+        self.chunk_size = 16
+        self.world_size = 2
 
         # Create all chunks
         dim = self.world_size//2
@@ -24,10 +26,31 @@ class ChunkHandler:
         
         self.generate()
 
+        all_voxels = np.zeros(shape=((2 * dim + 1) * self.chunk_size, (5) * self.chunk_size, (2 * dim + 1) * self.chunk_size), dtype='i8')
+        for x in range(-dim, dim + 1):
+            for y in range(-2, 3):
+                for z in range(-dim, dim + 1):
+                    all_voxels[(x + dim) * self.chunk_size:(x + dim + 1) * self.chunk_size, (y + 2) * self.chunk_size:(y + 3) * self.chunk_size,(z + dim) * self.chunk_size:(z + dim + 1) * self.chunk_size] = self.chunks[(x, y, z)].voxel_array
+
+        chunks_light = cascade_skylight2(all_voxels)
+
+        for x in range(-dim, dim + 1):
+            for y in range(-2, 3):
+                for z in range(-dim, dim + 1):
+                    self.chunks[(x, y, z)].light = chunks_light[(x + dim) * self.chunk_size:(x + dim + 1) * self.chunk_size, (y + 2) * self.chunk_size:(y + 3) * self.chunk_size,(z + dim) * self.chunk_size:(z + dim + 1) * self.chunk_size]
+
     def update(self):
-        for chunk in self.update_chunks:
+        for chunk in self.bake_chunks:
+            x_range = [max(chunk[0] - 1, -self.world_size//2), min(chunk[0] + 1, self.world_size//2)]
+            z_range = [max(chunk[1] - 1, -self.world_size//2), min(chunk[1] + 1, self.world_size//2)]
+            self.bake_light(x_range, z_range)
+        if self.update_chunks:
+            chunk = self.update_chunks.pop()
             chunk.build_vao()
-        self.update_chunks = set()
+        #for chunk in self.update_chunks:
+        #    chunk.build_vao()
+        self.bake_chunks = set()
+        #self.update_chunks = set()
 
     def render(self) -> None:
         for chunk in self.chunks.values():
@@ -37,9 +60,30 @@ class ChunkHandler:
         """
         Adds a blank chunk to the dictionary
         """
-        chunk_key = f'{x},{y},{z}'
+        chunk_key = (x, y, z)
         self.chunks[chunk_key] = Chunk(self.scene, self, x, y, z, self.chunk_size)
         self.chunks[chunk_key].build_vao()
+
+    def bake_light(self, x_range, z_range):
+        x_size = x_range[1] - x_range[0]
+        z_size = z_range[1] - z_range[0]
+
+        if x_size <= 0 or z_size <= 0: return
+
+        all_voxels = np.zeros(shape=((x_size + 1) * self.chunk_size, 5 * self.chunk_size, (z_size + 1) * self.chunk_size), dtype='i8')
+        for rel_x, x in enumerate(range(x_range[0], x_range[1] + 1)):
+            for y in range(-2, 3):
+                for rel_z, z in enumerate(range(z_range[0], z_range[1] + 1)):
+                    all_voxels[(rel_x) * self.chunk_size:(rel_x + 1) * self.chunk_size, (y + 2) * self.chunk_size:(y + 3) * self.chunk_size,(rel_z) * self.chunk_size:(rel_z + 1) * self.chunk_size] = self.chunks[(x, y, z)].voxel_array
+
+        chunks_light = cascade_skylight2(all_voxels)
+
+        for rel_x, x in enumerate(range(x_range[0], x_range[1] + 1)):
+            for y in range(-2, 3):
+                for rel_z, z in enumerate(range(z_range[0], z_range[1] + 1)):
+                    #self.update_chunks.add(self.chunks[(x, y, z)])
+                    self.chunks[(x, y, z)].light = chunks_light[(rel_x) * self.chunk_size:(rel_x + 1) * self.chunk_size, (y + 2) * self.chunk_size:(y + 3) * self.chunk_size,(rel_z) * self.chunk_size:(rel_z + 1) * self.chunk_size]
+
 
     def get_neighbor_chunk_arrays(self, x: int, y: int, z: int):
         """
@@ -50,7 +94,7 @@ class ChunkHandler:
 
         for rel_x, rel_y, rel_z in zip((0, 0, 1, -1, 0, 0, 0, 0, 0), (0, 0, 0, 0, 1, -1, 0, 0), (0, 0, 0, 0, 0, 0, 1, -1)):
             
-            chunk_key = f'{int(x + rel_x)},{int(y + rel_y)},{int(z + rel_z)}'
+            chunk_key = (int(x + rel_x), int(y + rel_y), int(z + rel_z))
             if chunk_key not in self.chunks: continue
 
             neighbors[rel_x + 1][rel_y + 1][rel_z + 1] = self.chunks[chunk_key].voxel_array
@@ -66,7 +110,7 @@ class ChunkHandler:
 
         # Get the key of the chunk based on the given global position
         chunk_pos = x // self.chunk_size, y // self.chunk_size, z // self.chunk_size
-        chunk_key = f'{chunk_pos[0]},{chunk_pos[1]},{chunk_pos[2]}'
+        chunk_key = (chunk_pos[0], chunk_pos[1], chunk_pos[2])
 
         # Check that the chunk exists
         if chunk_key not in self.chunks: return 0
@@ -83,7 +127,7 @@ class ChunkHandler:
         
         # Get the key of the chunk based on the given global position
         chunk_pos = x // self.chunk_size, y // self.chunk_size, z // self.chunk_size
-        chunk_key = f'{chunk_pos[0]},{chunk_pos[1]},{chunk_pos[2]}'
+        chunk_key = (chunk_pos[0], chunk_pos[1], chunk_pos[2])
 
         # Check that the chunk exists
         if chunk_key not in self.chunks: return
@@ -96,16 +140,17 @@ class ChunkHandler:
 
         # Add effected chucks to the update list
         possible_updates = [chunk_key]
-        if local_pos[0] == 0: possible_updates.append(f'{chunk_pos[0]-1},{chunk_pos[1]},{chunk_pos[2]}')
-        if local_pos[1] == 0: possible_updates.append(f'{chunk_pos[0]},{chunk_pos[1]-1},{chunk_pos[2]}')
-        if local_pos[2] == 0: possible_updates.append(f'{chunk_pos[0]},{chunk_pos[1]},{chunk_pos[2]-1}')
-        if local_pos[0] == self.chunk_size - 1: possible_updates.append(f'{chunk_pos[0]+1},{chunk_pos[1]},{chunk_pos[2]}')
-        if local_pos[1] == self.chunk_size - 1: possible_updates.append(f'{chunk_pos[0]},{chunk_pos[1]+1},{chunk_pos[2]}')
-        if local_pos[2] == self.chunk_size - 1: possible_updates.append(f'{chunk_pos[0]},{chunk_pos[1]},{chunk_pos[2]+1}')
+        if local_pos[0] == 0: possible_updates.append((chunk_pos[0]-1, chunk_pos[1], chunk_pos[2]))
+        if local_pos[1] == 0: possible_updates.append((chunk_pos[0], chunk_pos[1]-1, chunk_pos[2]))
+        if local_pos[2] == 0: possible_updates.append((chunk_pos[0], chunk_pos[1], chunk_pos[2]-1))
+        if local_pos[0] == self.chunk_size - 1: possible_updates.append((chunk_pos[0]+1, chunk_pos[1], chunk_pos[2]))
+        if local_pos[1] == self.chunk_size - 1: possible_updates.append((chunk_pos[0], chunk_pos[1]+1, chunk_pos[2]))
+        if local_pos[2] == self.chunk_size - 1: possible_updates.append((chunk_pos[0], chunk_pos[1], chunk_pos[2]+1))
         
         for chunk_key in possible_updates:
             if not chunk_key in self.chunks: continue
             self.update_chunks.add(self.chunks[chunk_key])
+            self.bake_chunks.add((chunk_pos[0], chunk_pos[2]))
 
     
     def generate(self):
