@@ -64,6 +64,8 @@ class UIHandler:
         self.inventory.quick_drop(Item(self.item_data_handler.item_data_templates[53], 32))
         self.inventory.quick_drop(Item(self.item_data_handler.item_data_templates[5], 64))
         self.inventory.quick_drop(Item(self.item_data_handler.item_data_templates[77], 64))
+        self.inventory.quick_drop(Item(self.item_data_handler.item_data_templates[19], 64))
+        self.inventory.quick_drop(Item(self.item_data_handler.item_data_templates[19], 64))
   
     def use(self, scene, frame_vao, win_size=(800, 800)):
         # Save refernece to parent scene and frame vao

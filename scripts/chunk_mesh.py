@@ -21,6 +21,15 @@ def is_empty(neighbors, x, y, z):
     return not bool(neighbors[chunk_x + 1][chunk_y + 1][chunk_z + 1][local_x][local_y][local_z])
 
 @njit
+def get_light(neighbors_light, x, y, z):
+    dim = neighbors_light[1][1][1].shape[0]
+    
+    chunk_x, chunk_y, chunk_z = x // dim, y // dim, z // dim
+    local_x, local_y, local_z = x % dim, y % dim, z % dim
+
+    return neighbors_light[chunk_x + 1][chunk_y + 1][chunk_z + 1][local_x][local_y][local_z]
+
+@njit
 def get_face_ao(neighbors, plane, x, y, z):
     if plane == 'y':
         v0 = is_empty(neighbors, *(x    , y    , z - 1))
@@ -56,7 +65,7 @@ def get_face_ao(neighbors, plane, x, y, z):
 
 
 @njit
-def get_mesh_buffer(chunk_voxels, chunk_light, neighbors):
+def get_mesh_buffer(chunk_voxels, neighbors, neighbors_light):
     dim = chunk_voxels.shape[0]
     vertex_data = np.zeros((dim ** 3 + 1) * 7 * 36, dtype='uint8')
     index = 7 * 36
@@ -66,11 +75,12 @@ def get_mesh_buffer(chunk_voxels, chunk_light, neighbors):
                 if not chunk_voxels[x][y][z]: continue
 
                 id = chunk_voxels[x][y][z]
-                light_level = chunk_light[x][y][z]
 
                 # Front
                 if is_empty(neighbors, x, y, z + 1):
                     ao = get_face_ao(neighbors, 'z', x, y, z + 1)
+
+                    light_level = get_light(neighbors_light, x, y, z + 1)
 
                     face = 5
                     index = add_data(vertex_data, index, 
@@ -81,6 +91,8 @@ def get_mesh_buffer(chunk_voxels, chunk_light, neighbors):
                 if is_empty(neighbors, x, y, z - 1):
                     ao = get_face_ao(neighbors, 'z', x, y, z - 1)
 
+                    light_level = get_light(neighbors_light, x, y, z - 1)
+
                     face = 4
                     index = add_data(vertex_data, index, 
                                         (x    , y    , z    , id, face, ao[0], light_level), (x    , y + 1, z    , id, face, ao[1], light_level), (x + 1, y + 1, z    , id, face, ao[2], light_level), 
@@ -89,6 +101,8 @@ def get_mesh_buffer(chunk_voxels, chunk_light, neighbors):
                 # Top
                 if is_empty(neighbors, x, y + 1, z):
                     ao = get_face_ao(neighbors, 'y', x, y + 1, z)
+
+                    light_level = get_light(neighbors_light, x, y + 1, z)
 
                     face = 0
                     index = add_data(vertex_data, index, 
@@ -99,6 +113,8 @@ def get_mesh_buffer(chunk_voxels, chunk_light, neighbors):
                 if is_empty(neighbors, x, y - 1, z):
                     ao = get_face_ao(neighbors, 'y', x, y - 1, z)
 
+                    light_level = get_light(neighbors_light, x, y - 1, z)
+
                     face = 1
                     index = add_data(vertex_data, index, 
                                         (x    , y    , z    , id, face, ao[0], light_level), (x + 1, y    , z + 1, id, face, ao[2], light_level), (x    , y    , z + 1, id, face, ao[3], light_level), 
@@ -108,6 +124,8 @@ def get_mesh_buffer(chunk_voxels, chunk_light, neighbors):
                 if is_empty(neighbors, x + 1, y, z):
                     ao = get_face_ao(neighbors, 'x', x + 1, y, z)
 
+                    light_level = get_light(neighbors_light, x + 1, y, z)
+
                     face = 2
                     index = add_data(vertex_data, index,
                                         (x + 1, y    , z    , id, face, ao[0], light_level), (x + 1, y + 1, z    , id, face, ao[1], light_level), (x + 1, y + 1, z + 1, id, face, ao[2], light_level),
@@ -116,6 +134,8 @@ def get_mesh_buffer(chunk_voxels, chunk_light, neighbors):
                 # Left
                 if is_empty(neighbors, x - 1, y, z):
                     ao = get_face_ao(neighbors, 'x', x - 1, y, z)
+
+                    light_level = get_light(neighbors_light, x - 1, y, z)
 
                     face = 3
                     index = add_data(vertex_data, index,
@@ -146,5 +166,6 @@ class ChunkMeshVBO:
         if self.vbo: self.vbo.release()
 
         neighbors = self.chunk.chunk_handler.get_neighbor_chunk_arrays(*self.chunk.position.xyz)
+        neighbors_light = self.chunk.chunk_handler.get_neighbor_chunk_light(*self.chunk.position.xyz)
 
-        self.vbo = self.ctx.buffer(get_mesh_buffer(self.chunk.voxel_array, self.chunk.light, neighbors))
+        self.vbo = self.ctx.buffer(get_mesh_buffer(self.chunk.voxel_array, neighbors, neighbors_light))

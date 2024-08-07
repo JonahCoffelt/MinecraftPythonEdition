@@ -1,2 +1,3 @@
-for i, x in enumerate(range(4, 8)):
-    print(i, x)
+my_list = [[1, 3]]
+
+print(my_list)

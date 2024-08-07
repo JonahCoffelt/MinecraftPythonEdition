@@ -28,7 +28,6 @@ def update_items(items, add_index, dt):
 @njit
 def distance(player_pos, items, add_index):
     return np.sqrt(np.power(items[:add_index,1] - player_pos[0], 2) + np.power(items[:add_index,2] - player_pos[1], 2) + np.power(items[:add_index,3] - player_pos[2], 2))
-    return np.sqrt(np.abs(np.power(items, 2) - np.power(player_pos, 2)))
 
 @njit
 def get_item_hit_points(items, add_index):
