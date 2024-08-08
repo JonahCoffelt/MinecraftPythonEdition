@@ -2,9 +2,7 @@ from scripts.player import Player
 from scripts.camera import *
 from scripts.chunk_handler import ChunkHandler
 from scripts.item_entity_handler import ItemEntityHandler
-
-
-import moderngl as mgl
+from scripts.sky_handler import Sky
 
 
 class Scene:
@@ -30,6 +28,9 @@ class Scene:
 
         # Item entities
         self.item_entity_handler = ItemEntityHandler(self)
+
+        # Sky planes
+        self.sky = Sky(self)
 
     def use(self):
         """
@@ -67,6 +68,7 @@ class Scene:
 
         self.project.texture_handler.framebuffer.clear(color=(0.3, 0.75, 0.9))
         self.project.texture_handler.framebuffer.use()
+        self.sky.render()
         self.chunk_handler.render()
         self.player.outline_handler.render()
         self.item_entity_handler.render()

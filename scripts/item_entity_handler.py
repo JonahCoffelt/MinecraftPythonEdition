@@ -1,9 +1,7 @@
 import numpy as np
 import moderngl as mgl
 from scripts.item import Item
-import glm
 from numba import njit
-from math import floor
 
 
 @njit

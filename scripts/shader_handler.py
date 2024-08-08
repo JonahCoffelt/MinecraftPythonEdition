@@ -18,6 +18,7 @@ class ShaderHandler:
         self.programs['outline'] = self.load_program('outline')
         self.programs['default'] = self.load_program('default')
         self.programs['item_entity'] = self.load_program('item_entity')
+        self.programs['sky'] = self.load_program('sky')
 
     def load_program(self, name: str='default') -> mgl.Program:
         """

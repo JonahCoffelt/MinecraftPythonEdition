@@ -23,8 +23,13 @@ def get_sky_light(voxels):
 
 
 @njit
-def cascade_skylight(voxels):
+def cascade_skylight(voxels, old_lights):
     chunks_light, min_terrain_height = get_sky_light(voxels)
+
+    chunks_light[0,:,:]  = old_lights[0,:,:]
+    chunks_light[-1,:,:] = old_lights[-1,:,:]
+    chunks_light[:,:,0]  = old_lights[:,:,0]
+    chunks_light[:,:,-1] = old_lights[:,:,-1]
 
     max_light_level = 15
 
@@ -36,26 +41,34 @@ def cascade_skylight(voxels):
         for z in range(voxels.shape[2]):
             for y in range(min_terrain_height, voxels.shape[1]):
                 if chunks_light[x][y][z] == 0: continue
-                
-                do_break = True
+
+                #do_break = True
 
                 if x + 1 < voxels.shape[0]:
-                    if chunks_light[x + 1][y    ][z    ] == 0: flood_fill_light.append((x + 1, y    , z    , max_light_level - 1))
-                    if chunks_light[x + 1][y    ][z    ] != 15: do_break = False
+                    if chunks_light[x + 1][y    ][z    ] == 0: flood_fill_light.append((x + 1, y    , z    , chunks_light[x][y][z] - 1))
+                    #if chunks_light[x + 1][y    ][z    ] != 15: do_break = False
                 
                 if 0 <= x - 1:
-                    if chunks_light[x - 1][y    ][z    ] == 0: flood_fill_light.append((x - 1, y    , z    , max_light_level - 1))
-                    if chunks_light[x - 1][y    ][z    ] != 15: do_break = False
+                    if chunks_light[x - 1][y    ][z    ] == 0: flood_fill_light.append((x - 1, y    , z    , chunks_light[x][y][z] - 1))
+                    #if chunks_light[x - 1][y    ][z    ] != 15: do_break = False
                 
+                if y + 1 < voxels.shape[1]:
+                    if chunks_light[x    ][y + 1][z    ] == 0: flood_fill_light.append((x    , y + 1, z     , chunks_light[x][y][z] - 1))
+                    #if chunks_light[x    ][z +  ][    1] != 15: do_break = False
+                
+                if 0 <= y - 1:
+                    if chunks_light[x    ][y - 1][z    ] == 0: flood_fill_light.append((x    , y - 1, z     , chunks_light[x][y][z] - 1))
+                    #if chunks_light[x    ][y    ][z - 1] != 15: do_break = False
+
                 if z + 1 < voxels.shape[2]:
-                    if chunks_light[x    ][y    ][z + 1] == 0: flood_fill_light.append((x    , y    , z + 1, max_light_level - 1))
-                    if chunks_light[x    ][y    ][z + 1] != 15: do_break = False
+                    if chunks_light[x    ][y    ][z + 1] == 0: flood_fill_light.append((x    , y    , z + 1, chunks_light[x][y][z] - 1))
+                    #if chunks_light[x    ][y    ][z + 1] != 15: do_break = False
                 
                 if 0 <= z - 1:
-                    if chunks_light[x    ][y    ][z - 1] == 0: flood_fill_light.append((x    , y    , z - 1, max_light_level - 1))
-                    if chunks_light[x    ][y    ][z - 1] != 15: do_break = False
+                    if chunks_light[x    ][y    ][z - 1] == 0: flood_fill_light.append((x    , y    , z - 1, chunks_light[x][y][z] - 1))
+                    #if chunks_light[x    ][y    ][z - 1] != 15: do_break = False
 
-                if do_break: break
+                #if do_break: break
 
     while pop_index < len(flood_fill_light):
         x, y, z, light_level = flood_fill_light[pop_index]

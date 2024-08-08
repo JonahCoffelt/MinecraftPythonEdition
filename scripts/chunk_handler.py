@@ -43,12 +43,13 @@ class ChunkHandler:
         if x_size <= 0 or z_size <= 0: return
 
         all_voxels = np.zeros(shape=((x_size + 1) * self.chunk_size, 5 * self.chunk_size, (z_size + 1) * self.chunk_size), dtype='i8')
+        all_light = np.copy(all_voxels)
         for rel_x, x in enumerate(range(x_range[0], x_range[1] + 1)):
             for y in range(-2, 3):
                 for rel_z, z in enumerate(range(z_range[0], z_range[1] + 1)):
                     all_voxels[(rel_x) * self.chunk_size:(rel_x + 1) * self.chunk_size, (y + 2) * self.chunk_size:(y + 3) * self.chunk_size,(rel_z) * self.chunk_size:(rel_z + 1) * self.chunk_size] = self.chunks[(x, y, z)].voxel_array
 
-        chunks_light = cascade_skylight(all_voxels)
+        chunks_light = cascade_skylight(all_voxels, all_light)
 
         for rel_x, x in enumerate(range(x_range[0], x_range[1] + 1)):
             for y in range(-2, 3):
@@ -118,6 +119,7 @@ class ChunkHandler:
         z_size = z_range[1] - z_range[0]
 
         all_voxels = get_empty_light(x_size, self.world_height, z_size, self.chunk_size)
+        all_light = np.copy(all_voxels)
 
         all_x = 0
         for chunk_x, rel_x in zip(x_chunks, rel_x_range):
@@ -125,22 +127,20 @@ class ChunkHandler:
             for chunk_z, rel_z in zip(z_chunks, rel_z_range):
                 for y in range(-self.world_height, self.world_height + 1):
                     all_voxels[all_x:all_x + (rel_x[1] - rel_x[0]), (y + self.world_height) * self.chunk_size:(y + self.world_height + 1) * self.chunk_size, all_z:all_z + (rel_z[1] - rel_z[0])] = self.chunks[(chunk_x, y, chunk_z)].voxel_array[rel_x[0]:rel_x[1],:,rel_z[0]:rel_z[1]]
+                    all_light[all_x:all_x + (rel_x[1] - rel_x[0]), (y + self.world_height) * self.chunk_size:(y + self.world_height + 1) * self.chunk_size, all_z:all_z + (rel_z[1] - rel_z[0])] = self.chunks[(chunk_x, y, chunk_z)].light[rel_x[0]:rel_x[1],:,rel_z[0]:rel_z[1]]
                 all_z += (rel_z[1] - rel_z[0])
             all_x += (rel_x[1] - rel_x[0])
 
-        chunks_light = cascade_skylight(all_voxels)
+        chunks_light = cascade_skylight(all_voxels, all_light)
 
         all_x = 0
         for chunk_x, rel_x in zip(x_chunks, rel_x_range):
             all_z = 0
             for chunk_z, rel_z in zip(z_chunks, rel_z_range):
                 for y in range(-self.world_height, self.world_height + 1):
-                    #print("x_rages", (all_x, all_x + (rel_x[1] - rel_x[0])), (rel_x[0], rel_x[1]), "all_x", all_x)
-                    #print("z_ranges", (all_z, all_z + (rel_z[1] - rel_z[0])), (rel_z[0], rel_z[1]), "all_z", all_z)
-                    
-                    self.chunks[(chunk_x, y, chunk_z)].light[rel_x[0]:rel_x[1],:,rel_z[0]:rel_z[1]] = chunks_light[all_x:all_x + (rel_x[1] - rel_x[0]), (y + self.world_height) * self.chunk_size:(y + self.world_height + 1) * self.chunk_size, all_z:all_z + (rel_z[1] - rel_z[0])]
-
-                    #self.chunks[(chunk_x, y, chunk_z)].light[rel_x[0]:rel_x[1],:,rel_z[0]:rel_z[1]] = chunks_light[all_x:all_x + (rel_x[1] - rel_x[0]), (y + self.world_height) * self.chunk_size:(y + self.world_height + 1) * self.chunk_size, all_z:all_z + (rel_z[1] - rel_z[0])]
+                    if not np.array_equal(self.chunks[(chunk_x, y, chunk_z)].light[rel_x[0]:rel_x[1],:,rel_z[0]:rel_z[1]], chunks_light[all_x:all_x + (rel_x[1] - rel_x[0]), (y + self.world_height) * self.chunk_size:(y + self.world_height + 1) * self.chunk_size, all_z:all_z + (rel_z[1] - rel_z[0])]):
+                        self.chunks[(chunk_x, y, chunk_z)].light[rel_x[0]:rel_x[1],:,rel_z[0]:rel_z[1]] = chunks_light[all_x:all_x + (rel_x[1] - rel_x[0]), (y + self.world_height) * self.chunk_size:(y + self.world_height + 1) * self.chunk_size, all_z:all_z + (rel_z[1] - rel_z[0])]
+                        self.update_chunks.add(self.chunks[(chunk_x, y, chunk_z)])
                 all_z += (rel_z[1] - rel_z[0])
             all_x += (rel_x[1] - rel_x[0])
 
@@ -215,17 +215,18 @@ class ChunkHandler:
 
         # Add effected chucks to the update list
         possible_updates = [chunk_key]
-        if local_pos[0] <= 15: possible_updates.append((chunk_pos[0]-1, chunk_pos[1], chunk_pos[2]))
-        if local_pos[1] <= 15: possible_updates.append((chunk_pos[0], chunk_pos[1]-1, chunk_pos[2]))
-        if local_pos[2] <= 15: possible_updates.append((chunk_pos[0], chunk_pos[1], chunk_pos[2]-1))
-        if local_pos[0] >= self.chunk_size - 15: possible_updates.append((chunk_pos[0]+1, chunk_pos[1], chunk_pos[2]))
-        if local_pos[1] >= self.chunk_size - 15: possible_updates.append((chunk_pos[0], chunk_pos[1]+1, chunk_pos[2]))
-        if local_pos[2] >= self.chunk_size - 15: possible_updates.append((chunk_pos[0], chunk_pos[1], chunk_pos[2]+1))
+        if local_pos[0] == 0: possible_updates.append((chunk_pos[0]-1, chunk_pos[1], chunk_pos[2]))
+        if local_pos[1] == 0: possible_updates.append((chunk_pos[0], chunk_pos[1]-1, chunk_pos[2]))
+        if local_pos[2] == 0: possible_updates.append((chunk_pos[0], chunk_pos[1], chunk_pos[2]-1))
+        if local_pos[0] == self.chunk_size - 1: possible_updates.append((chunk_pos[0]+1, chunk_pos[1], chunk_pos[2]))
+        if local_pos[1] == self.chunk_size - 1: possible_updates.append((chunk_pos[0], chunk_pos[1]+1, chunk_pos[2]))
+        if local_pos[2] == self.chunk_size - 1: possible_updates.append((chunk_pos[0], chunk_pos[1], chunk_pos[2]+1))
         
         for chunk_key in possible_updates:
             if not chunk_key in self.chunks: continue
             self.update_chunks.add(self.chunks[chunk_key])
-            self.bake_light_position = (x, y, z)
+        
+        self.bake_light_position = (x, y, z)
     
     def generate(self):
         self.seed = random.randrange(10000)
