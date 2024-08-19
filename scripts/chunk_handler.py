@@ -6,8 +6,6 @@ from scripts.chunk_light import cascade_skylight, get_sky_light
 import time
 from numba import njit
 
-# Original time ~0.015
-
 @njit
 def get_empty_light(x_size, world_height, z_size, chunk_size):
     return np.zeros(shape=(x_size, (world_height * 2 + 1) * chunk_size, z_size), dtype='i8') + 15
@@ -56,12 +54,6 @@ class ChunkHandler:
                 for rel_z, z in enumerate(range(z_range[0], z_range[1] + 1)):
                     #self.update_chunks.add(self.chunks[(x, y, z)])
                     self.chunks[(x, y, z)].light = chunks_light[(rel_x) * self.chunk_size:(rel_x + 1) * self.chunk_size, (y + 2) * self.chunk_size:(y + 3) * self.chunk_size,(rel_z) * self.chunk_size:(rel_z + 1) * self.chunk_size]
-
-
-        #for x in range(-dim * self.chunk_size, (dim + 1) * self.chunk_size, 7):
-        #    for z in range(-dim * self.chunk_size, (dim + 1) * self.chunk_size, 7):
-        #        self.bake_light_position = (x, 0, z)
-        #        self.bake_light()
         
         for x in range(-dim, dim + 1):
             for y in range(-self.world_height, self.world_height + 1):

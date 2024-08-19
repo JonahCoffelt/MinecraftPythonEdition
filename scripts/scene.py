@@ -18,6 +18,9 @@ class Scene:
 
         # Gets handlers from parent project
         self.vao_handler = self.project.vao_handler
+        
+        # Sky planes
+        self.sky = Sky(self)
 
         # Creates a chunk handler
         self.chunk_handler = ChunkHandler(self)
@@ -29,8 +32,6 @@ class Scene:
         # Item entities
         self.item_entity_handler = ItemEntityHandler(self)
 
-        # Sky planes
-        self.sky = Sky(self)
 
     def use(self):
         """
@@ -59,6 +60,7 @@ class Scene:
         self.chunk_handler.update()
         self.item_entity_handler.update()
         self.project.block_interaction_handler.furnace_handler.update()
+        self.sky.update(self.engine.dt)
         self.project.ui_handler.update()
 
     def render(self):
