@@ -1,0 +1,6 @@
+pygame
+moderngl
+cudart
+PyGLM
+numba
+pyautogui
