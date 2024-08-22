@@ -36,7 +36,7 @@ class Sky:
         self.sky_vao = self.ctx.vertex_array(self.programs['sky'], [(sky_vbo.vbo, sky_vbo.format, *sky_vbo.attribs)], skip_errors=True)
 
     def update(self, dt):
-        self.time += dt * 3
+        self.time += dt / 10
         self.time = self.time % 24
 
         time_index = np.searchsorted(self.times, self.time)

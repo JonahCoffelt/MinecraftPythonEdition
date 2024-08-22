@@ -19,7 +19,7 @@ class ChunkHandler:
         self.bake_light_position = None
         # Set chunk parameters
         self.chunk_size = 32
-        self.world_size = 2
+        self.world_size = 4
         self.world_height = 2
         # Light handler
         self.light_handler = LightHandler(self)
