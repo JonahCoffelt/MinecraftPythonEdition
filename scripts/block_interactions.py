@@ -30,6 +30,8 @@ class BlockInteractionsHandler:
         elif id == 33:
             self.block_container_handler.add(x, y, z, (3, 1))
             self.furnace_handler.furnaces[(x, y, z)] = [0, 0, 1]
+        elif id in {36}:
+            self.project.current_scene.placed_light_handler.place(x, y, z, id)
 
     def crafting_table(self, id, x, y, z):
         self.ui_handler.crafter = ItemContainer((3, 3))

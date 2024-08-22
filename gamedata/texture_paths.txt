@@ -98,3 +98,4 @@ chest_top
 chest_bottom
 chest_side
 chest_front
+glowstone

@@ -11,6 +11,8 @@ Sticks;         6;          4;          0,11,0,11
 Crafting Table; 7;          1;          4,4,4,4
 Crafting Table; 7;          1;          9,9,9,9
 Crafting Table; 7;          1;          11,11,11,11
+Torch;          80;         4;          34,0,6,0
+Torch;          80;         4;          0,34,0,6
 Coal;           34;         9;          12
 Iron Ingot;     35;         9;          15
 Gold Ingot;     37;         9;          17

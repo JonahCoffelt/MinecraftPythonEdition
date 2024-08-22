@@ -60,23 +60,26 @@ class Player:
         if self.target_velocity.x and self.target_velocity.z:
             self.target_velocity.xz *= .7
 
-        # Gets projected player position based on current velocity
-        self.projected_position = self.position + self.velocity * dt
-        self.collide_x, self.collide_y, self.collide_z = self.collide(self.projected_position)
-
-        # I move each component individually in order to avoid fighting over a collision
-
-        self.move_y()
-        self.collide_x, self.collide_y, self.collide_z = self.collide(self.projected_position)
-
-        if abs(glm.cos(glm.radians(self.yaw))) >= abs(glm.sin(glm.radians(self.yaw))):
-            self.move_x()
+        col_iterations = 4
+        dt /= col_iterations
+        for i in range(col_iterations):
+            # Gets projected player position based on current velocity
+            self.projected_position = self.position + self.velocity * dt
             self.collide_x, self.collide_y, self.collide_z = self.collide(self.projected_position)
-            self.move_z()
-        else:
-            self.move_z()
+
+            # I move each component individually in order to avoid fighting over a collision
+
+            self.move_y()
             self.collide_x, self.collide_y, self.collide_z = self.collide(self.projected_position)
-            self.move_x()
+
+            if abs(glm.cos(glm.radians(self.yaw))) >= abs(glm.sin(glm.radians(self.yaw))):
+                self.move_x()
+                self.collide_x, self.collide_y, self.collide_z = self.collide(self.projected_position)
+                self.move_z()
+            else:
+                self.move_z()
+                self.collide_x, self.collide_y, self.collide_z = self.collide(self.projected_position)
+                self.move_x()
 
     def move_x(self):
         # Updates position and velocity based on collisions. Snaps to grid if there is a collision

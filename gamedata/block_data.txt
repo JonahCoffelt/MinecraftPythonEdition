@@ -34,3 +34,4 @@ block_id: int,  name: str,          block_type: int,    hardness: float,    drop
 33;             Furnace;            1;                  2.5;                [77]
 34;             Chest;              2;                  2.5;                [78]
 35;             Dirt;               0;                  0.75;               [79]
+36;             Glowstone;          0;                  0.75;               [80]

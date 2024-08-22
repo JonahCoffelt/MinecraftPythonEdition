@@ -3,6 +3,7 @@ from scripts.camera import *
 from scripts.chunk_handler import ChunkHandler
 from scripts.item_entity_handler import ItemEntityHandler
 from scripts.sky_handler import Sky
+from scripts.placed_light_handler import PlacedLightHandler
 
 
 class Scene:
@@ -21,6 +22,7 @@ class Scene:
         
         # Sky planes
         self.sky = Sky(self)
+        self.placed_light_handler = PlacedLightHandler(self)
 
         # Creates a chunk handler
         self.chunk_handler = ChunkHandler(self)
@@ -31,6 +33,8 @@ class Scene:
 
         # Item entities
         self.item_entity_handler = ItemEntityHandler(self)
+
+
 
 
     def use(self):

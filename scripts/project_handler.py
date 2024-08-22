@@ -130,7 +130,7 @@ class BlankProject(Project):
 
         # Adds a blank scene
         self.scenes['Scene'] = Scene(self.engine, self)
-        self.scenes['Scene1'] = Scene(self.engine, self)
+        # self.scenes['Scene1'] = Scene(self.engine, self)
         # Set scene to be rendered and updated
         self.current_scene = self.scenes['Scene']
         # Load textures

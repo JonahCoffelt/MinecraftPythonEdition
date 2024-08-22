@@ -77,4 +77,5 @@ item_id: int,   block_id: int,  texture_id: int,    name: str,          placeabl
 76;             0;              85;                 diamond_helmet;     False;              0;                  1;                  100;                    [-1, 0]
 77;             33;             43;                 Furnace;            True;               1;                  64;                 0;                      [-1, 0]
 78;             34;             99;                 Chest;              True;               2;                  64;                 0;                      [-1, 0]
-79;             35;             2;                Dirt;               True;               0;                  64;                 0;                      [-1, 0]
+79;             35;             2;                  Dirt;               True;               0;                  64;                 0;                      [-1, 0]
+80;             36;             100;                Glowstone;          True;               1;                  64;                 0;                      [-1, 0]
