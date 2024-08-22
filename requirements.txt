@@ -1,0 +1,5 @@
+pygame
+moderngl
+cudart
+PyGLM
+numba
